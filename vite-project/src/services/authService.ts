@@ -17,6 +17,6 @@ export const login = async (data: LoginPayload): Promise<AuthResponse> => {
 };
 
 export const register = async (data: LoginPayload) => {
-  const res = await api.post("http://localhost:8081/users/register", data);
+  const res = await api.post("http://localhost:8081/users", data);;
   return res.data;
 };

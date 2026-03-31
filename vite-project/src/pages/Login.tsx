@@ -30,27 +30,56 @@ export default function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        
+        {/* Title */}
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Welcome Back 👋
+        </h2>
 
-      <input
-        placeholder="Username"
-        value={data.username}
-        onChange={handleChange("username")}
-      />
+        {/* Username */}
+        <div className="mb-4">
+          <input
+            placeholder="Username"
+            value={data.username}
+            onChange={handleChange("username")}
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          />
+        </div>
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={data.password}
-        onChange={handleChange("password")}
-      />
+        {/* Password */}
+        <div className="mb-4">
+          <input
+            type="password"
+            placeholder="Password"
+            value={data.password}
+            onChange={handleChange("password")}
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          />
+        </div>
 
-      {error ? <p>{error}</p> : null}
+        {/* Error */}
+        {error && (
+          <p className="text-red-500 text-sm mb-4 text-center">
+            {error}
+          </p>
+        )}
 
-      <button onClick={handleSubmit} disabled={isSubmitting}>
-        {isSubmitting ? "Logging in..." : "Login"}
-      </button>
+        {/* Button */}
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+        >
+          {isSubmitting ? "Logging in..." : "Login"}
+        </button>
+
+        {/* Footer */}
+        <p className="text-sm text-gray-500 text-center mt-6">
+          Don't have an account? <span className="text-indigo-600 font-medium cursor-pointer">Sign up</span>
+        </p>
+      </div>
     </div>
   );
 }

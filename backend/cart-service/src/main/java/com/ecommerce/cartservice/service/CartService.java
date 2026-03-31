@@ -26,6 +26,16 @@ public class CartService {
     }
 
     public Cart addItemToCart(String userId, CartItem item) {
+        if (item.getQuantity() == 0) {
+            return repository.findByUserId(userId).orElseGet(() -> {
+                Cart emptyCart = new Cart();
+                emptyCart.setUserId(userId);
+                emptyCart.setItems(new ArrayList<>());
+                emptyCart.setTotalPrice(0);
+                return emptyCart;
+            });
+        }
+
         Cart cart = repository.findByUserId(userId)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
@@ -45,7 +55,11 @@ public class CartService {
         }
 
         if (!itemUpdated) {
-            cart.getItems().add(item);
+            if (item.getQuantity() > 0) {
+                cart.getItems().add(item);
+            }
+        } else {
+            cart.getItems().removeIf(cartItem -> cartItem.getQuantity() <= 0);
         }
 
         cart.setTotalPrice(calculateTotalPrice(cart));
@@ -63,15 +77,26 @@ public class CartService {
         }
 
         Cart cart = optionalCart.get();
+        CartItem existingItem = null;
         for (CartItem item : cart.getItems()) {
             if (item.getProductId().equals(productId)) {
-                item.setQuantity(quantity);
-                cart.setTotalPrice(calculateTotalPrice(cart));
-                return Optional.of(repository.save(cart));//product is found and updated
+                existingItem = item;
+                break;
             }
         }
 
-        return Optional.empty();//product is not found in the cart 
+        if (existingItem == null) {
+            return Optional.empty();//product is not found in the cart
+        }
+
+        if (quantity <= 0) {
+            cart.getItems().removeIf(cartItem -> cartItem.getProductId().equals(productId));
+        } else {
+            existingItem.setQuantity(quantity);
+        }
+
+        cart.setTotalPrice(calculateTotalPrice(cart));
+        return Optional.of(repository.save(cart));//product is found and updated
     }
 
     public Optional<Cart> removeItem(String userId, String productId) {

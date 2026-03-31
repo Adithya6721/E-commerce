@@ -20,8 +20,9 @@ public class UserController {
     private UserService service;
     UserRepository userRepository;
 
-    public UserController(UserService service) {
+    public UserController(UserService service, UserRepository userRepository) {
         this.service = service;
+        this.userRepository = userRepository;
     }
 
     @PostMapping
