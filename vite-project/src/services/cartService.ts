@@ -1,5 +1,6 @@
 import axios from "axios";
 import api from "./api";
+import { API_BASE_URLS } from "./baseUrls";
 
 export interface CartItem {
   productId: string;
@@ -34,7 +35,7 @@ export const getCart = async (userId: string): Promise<Cart> => {
   }
 
   try {
-    const res = await api.get(`http://localhost:8083/cart/${userId}`);
+    const res = await api.get(`${API_BASE_URLS.cart}/cart/${userId}`);
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -45,7 +46,7 @@ export const getCart = async (userId: string): Promise<Cart> => {
 };
 
 export const addToCart = async (userId: string, item: CartItem): Promise<Cart> => {
-  const res = await api.post(`http://localhost:8083/cart/${userId}/items`, item);
+  const res = await api.post(`${API_BASE_URLS.cart}/cart/${userId}/items`, item);
   notifyCartUpdated();
   return res.data;
 };
@@ -56,7 +57,7 @@ export const updateCartItemQuantity = async (
   quantity: number
 ): Promise<Cart> => {
   const res = await api.put(
-    `http://localhost:8083/cart/${userId}/items/${productId}`,
+    `${API_BASE_URLS.cart}/cart/${userId}/items/${productId}`,
     { productId, quantity }
   );
   notifyCartUpdated();
@@ -67,7 +68,7 @@ export const removeFromCart = async (
   userId: string,
   productId: string
 ): Promise<Cart> => {
-  const res = await api.delete(`http://localhost:8083/cart/${userId}/items/${productId}`);
+  const res = await api.delete(`${API_BASE_URLS.cart}/cart/${userId}/items/${productId}`);
   notifyCartUpdated();
   return res.data;
 };

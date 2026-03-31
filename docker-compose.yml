@@ -1,0 +1,45 @@
+services:
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+
+  product-service:
+    build: ./backend/product-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mongodb
+
+  cart-service:
+    build: ./backend/cart-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mongodb
+
+  frontend:
+    build:
+      context: ./vite-project
+      args:
+        VITE_USER_API_URL: http://localhost:8081
+        VITE_PRODUCT_API_URL: http://localhost:8082
+        VITE_CART_API_URL: http://localhost:8083
+    ports:
+      - "5173:5173"
+    depends_on:
+      - user-service
+      - product-service
+      - cart-service
+
+volumes:
+  mongo-data:

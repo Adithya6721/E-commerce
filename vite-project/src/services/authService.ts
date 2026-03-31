@@ -1,4 +1,5 @@
 import api from "./api";
+import { API_BASE_URLS } from "./baseUrls";
 
 export interface LoginPayload {
   username: string;
@@ -12,11 +13,11 @@ interface AuthResponse {
 }
 
 export const login = async (data: LoginPayload): Promise<AuthResponse> => {
-  const res = await api.post("http://localhost:8081/auth/login", data);
+  const res = await api.post(`${API_BASE_URLS.user}/auth/login`, data);
   return res.data;
 };
 
 export const register = async (data: LoginPayload) => {
-  const res = await api.post("http://localhost:8081/users", data);;
+  const res = await api.post(`${API_BASE_URLS.user}/users`, data);
   return res.data;
 };
