@@ -39,6 +39,11 @@ public class UserController {
         return service.getAllUsers();
     }
 
+    @GetMapping("/admin/all")
+    public List<User> getAllUsersForAdmin() {
+        return service.getAllUsers();
+    }
+
     @GetMapping("/summary")
     public UserSummary getUserSummary() {
         return service.getSummary();

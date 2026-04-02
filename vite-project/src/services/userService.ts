@@ -14,7 +14,7 @@ export interface UserSummary {
 }
 
 export const getUsers = async (): Promise<UserRecord[]> => {
-  const res = await api.get(`${API_BASE_URLS.user}/users`);
+  const res = await api.get(`${API_BASE_URLS.user}/users/admin/all`);
   return res.data;
 };
 
