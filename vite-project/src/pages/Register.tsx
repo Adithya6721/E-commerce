@@ -1,14 +1,26 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { register } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [data, setData] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    await register(data);
-    navigate("/login");
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      await register(data);
+      navigate("/login");
+    } catch {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -23,6 +35,7 @@ export default function Register() {
         {/* Username */}
         <div className="mb-4">
           <input
+            name="username"
             placeholder="Username"
             onChange={(e) => setData({ ...data, username: e.target.value })}
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
@@ -32,6 +45,7 @@ export default function Register() {
         {/* Password */}
         <div className="mb-6">
           <input
+            name="password"
             type="password"
             placeholder="Password"
             onChange={(e) => setData({ ...data, password: e.target.value })}
@@ -39,23 +53,30 @@ export default function Register() {
           />
         </div>
 
+        {error && (
+          <p className="text-red-500 text-sm mb-4 text-center">
+            {error}
+          </p>
+        )}
+
         {/* Button */}
         <button
           onClick={handleSubmit}
-          className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+          disabled={isSubmitting}
+          className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50"
         >
-          Register
+          {isSubmitting ? "Registering..." : "Register"}
         </button>
 
         {/* Footer */}
         <p className="text-sm text-gray-500 text-center mt-6">
           Already have an account?{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="text-purple-600 font-medium cursor-pointer hover:underline"
+          <Link
+            to="/login"
+            className="text-purple-600 font-medium hover:underline"
           >
             Login
-          </span>
+          </Link>
         </p>
       </div>
     </div>

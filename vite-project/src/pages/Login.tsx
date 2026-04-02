@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -41,6 +41,7 @@ export default function Login() {
         {/* Username */}
         <div className="mb-4">
           <input
+            name="username"
             placeholder="Username"
             value={data.username}
             onChange={handleChange("username")}
@@ -51,6 +52,7 @@ export default function Login() {
         {/* Password */}
         <div className="mb-4">
           <input
+            name="password"
             type="password"
             placeholder="Password"
             value={data.password}
@@ -77,7 +79,10 @@ export default function Login() {
 
         {/* Footer */}
         <p className="text-sm text-gray-500 text-center mt-6">
-          Don't have an account? <span className="text-indigo-600 font-medium cursor-pointer">Sign up</span>
+          Don't have an account?{" "}
+          <Link to="/register" className="text-indigo-600 font-medium hover:underline">
+            Sign up
+          </Link>
         </p>
       </div>
     </div>
