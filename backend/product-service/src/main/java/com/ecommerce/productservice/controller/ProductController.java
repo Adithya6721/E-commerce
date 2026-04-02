@@ -1,6 +1,8 @@
 package com.ecommerce.productservice.controller;
 
 import com.ecommerce.productservice.model.Product;
+import com.ecommerce.productservice.model.ProductStockUpdate;
+import com.ecommerce.productservice.model.ProductSummary;
 import com.ecommerce.productservice.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,6 +36,11 @@ public class ProductController {
         return service.getAllProducts();
     }
 
+    @GetMapping("/admin/summary")
+    public ProductSummary getProductSummary() {
+        return service.getSummary();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable String id) {
         return service.getProductById(id)
@@ -44,6 +51,13 @@ public class ProductController {
     @PutMapping("/{id}")
     public Product updateProduct(@PathVariable String id, @RequestBody Product product) {
         return service.updateProduct(id, product);
+    }
+
+    @PutMapping("/{id}/stock")
+    public ResponseEntity<Product> updateStock(@PathVariable String id, @RequestBody ProductStockUpdate stockUpdate) {
+        return service.updateStock(id, stockUpdate.getStock())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

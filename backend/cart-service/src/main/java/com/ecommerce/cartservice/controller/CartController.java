@@ -2,6 +2,7 @@ package com.ecommerce.cartservice.controller;
 
 import com.ecommerce.cartservice.model.Cart;
 import com.ecommerce.cartservice.model.CartItem;
+import com.ecommerce.cartservice.model.CartSummary;
 import com.ecommerce.cartservice.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,6 +34,16 @@ public class CartController {
         return service.getCartByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/admin/all")
+    public java.util.List<Cart> getAllCarts() {
+        return service.getAllCarts();
+    }
+
+    @GetMapping("/admin/summary")
+    public CartSummary getCartSummary() {
+        return service.getSummary();
     }
 
     @PutMapping("/{userId}/items/{productId}")

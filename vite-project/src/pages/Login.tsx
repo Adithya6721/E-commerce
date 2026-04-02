@@ -20,8 +20,8 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      await login(data);
-      navigate("/");
+      const auth = await login(data);
+      navigate(auth.role === "ADMIN" ? "/admin" : "/");
     } catch {
       setError("Login failed. Please check your username and password.");
     } finally {

@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.controller;
 
 import com.ecommerce.userservice.model.User;
+import com.ecommerce.userservice.model.UserSummary;
 import com.ecommerce.userservice.repository.UserRepository;
 import com.ecommerce.userservice.service.UserService;
 
@@ -36,5 +37,10 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         return service.getAllUsers();
+    }
+
+    @GetMapping("/summary")
+    public UserSummary getUserSummary() {
+        return service.getSummary();
     }
 }

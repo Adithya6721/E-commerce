@@ -14,6 +14,13 @@ export interface Cart {
   totalPrice: number;
 }
 
+export interface CartSummary {
+  totalCarts: number;
+  cartsWithItems: number;
+  totalItemsInCarts: number;
+  projectedRevenue: number;
+}
+
 export const CART_UPDATED_EVENT = "cart-updated";
 
 const createEmptyCart = (userId: string): Cart => ({
@@ -70,5 +77,10 @@ export const removeFromCart = async (
 ): Promise<Cart> => {
   const res = await api.delete(`${API_BASE_URLS.cart}/cart/${userId}/items/${productId}`);
   notifyCartUpdated();
+  return res.data;
+};
+
+export const getCartSummary = async (): Promise<CartSummary> => {
+  const res = await api.get(`${API_BASE_URLS.cart}/cart/admin/summary`);
   return res.data;
 };

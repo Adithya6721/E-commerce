@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { CART_UPDATED_EVENT, getCart } from "../services/cartService";
 
 export default function Navbar() {
-  const { username, logout } = useAuth();
+  const { username, role, logout } = useAuth();
   const { pathname } = useLocation();
   const [cartCount, setCartCount] = useState(0);
 
@@ -65,6 +65,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1">
           {navLink("/", "Home")}
+          {role === "ADMIN" && navLink("/admin", "Admin")}
           <Link
             to="/cart"
             className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all ${

@@ -2,6 +2,7 @@ package com.ecommerce.cartservice.service;
 
 import com.ecommerce.cartservice.model.Cart;
 import com.ecommerce.cartservice.model.CartItem;
+import com.ecommerce.cartservice.model.CartSummary;
 import com.ecommerce.cartservice.model.Product;
 import com.ecommerce.cartservice.repository.CartRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -113,6 +115,26 @@ public class CartService {
 
         cart.setTotalPrice(calculateTotalPrice(cart));
         return Optional.of(repository.save(cart));
+    }
+
+    public List<Cart> getAllCarts() {
+        return repository.findAll();
+    }
+
+    public CartSummary getSummary() {
+        List<Cart> carts = repository.findAll();
+        long cartsWithItems = carts.stream()
+                .filter(cart -> cart.getItems() != null && !cart.getItems().isEmpty())
+                .count();
+        int totalItemsInCarts = carts.stream()
+                .flatMap(cart -> cart.getItems().stream())
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+        double projectedRevenue = carts.stream()
+                .mapToDouble(Cart::getTotalPrice)
+                .sum();
+
+        return new CartSummary(carts.size(), cartsWithItems, totalItemsInCarts, projectedRevenue);
     }
 
     private double calculateTotalPrice(Cart cart) {//product service url is present in the application properties

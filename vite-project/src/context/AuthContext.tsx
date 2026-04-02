@@ -15,7 +15,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   isAuthenticated: boolean;
-  login: (data: LoginPayload) => Promise<void>;
+  login: (data: LoginPayload) => Promise<AuthState>;
   logout: () => void;
 }
 
@@ -58,11 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (data: LoginPayload) => {
     const response = await loginRequest(data);
-    setAuth({
+    const nextAuth = {
       token: response.token,
       username: response.username,
       role: response.role,
-    });
+    };
+    setAuth(nextAuth);
+    return nextAuth;
   };
 
   const logout = () => {

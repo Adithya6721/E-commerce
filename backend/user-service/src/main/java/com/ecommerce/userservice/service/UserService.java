@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.service;
 
 import com.ecommerce.userservice.model.User;
+import com.ecommerce.userservice.model.UserSummary;
 import com.ecommerce.userservice.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,18 @@ public class UserService {
             users.add(hidePassword(user));
         }
         return users;
+    }
+
+    public UserSummary getSummary() {
+        List<User> users = repository.findAll();
+        long totalAdmins = users.stream()
+                .filter(user -> "ADMIN".equalsIgnoreCase(user.getRole()))
+                .count();
+        long totalCustomers = users.stream()
+                .filter(user -> !"ADMIN".equalsIgnoreCase(user.getRole()))
+                .count();
+
+        return new UserSummary(users.size(), totalAdmins, totalCustomers);
     }
 
     private User hidePassword(User user) {
