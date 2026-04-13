@@ -1,0 +1,419 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{subcaption}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\onehalfspacing
+
+\definecolor{headingblue}{RGB}{15,76,129}
+\definecolor{lightgray}{RGB}{245,245,245}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Internet Programming}
+\lhead{Project Report}
+\cfoot{\thepage}
+
+\titleformat{\section}{\large\bfseries\color{headingblue}}{\thesection}{0.75em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.75em}{}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\codecell}[1]{{\small\path{#1}}}
+\newcommand{\importantfile}[3]{
+    \item \textbf{#1} (\codecell{#2})\\
+    #3
+}
+
+\newcommand{\placeholderimage}[2]{
+    \begin{figure}[H]
+        \centering
+        \fbox{
+            \parbox[c][#2][c]{0.82\textwidth}{
+                \centering
+                \vspace{0.2cm}
+                \textbf{Image Placeholder}\\[0.2cm]
+                #1\\
+                Replace this box with your screenshot/diagram.
+                \vspace{0.2cm}
+            }
+        }
+        \caption{#1}
+    \end{figure}
+}
+
+\begin{document}
+
+\begin{center}
+    {\Large\bfseries PROJECT DOCUMENTATION REPORT}\\[0.4cm]
+    {\large\bfseries Full Stack E-Commerce Web Application using React, Spring Boot, MongoDB and Docker}
+\end{center}
+
+\vspace{0.3cm}
+
+\begin{tabularx}{\textwidth}{|>{\bfseries}l|X|>{\bfseries}l|X|}
+\hline
+Assignment No. & 9 & Date & \underline{\hspace{3cm}} \\ \hline
+Name & S. Adithya & Reg. No. & 3122245001007 \\ \hline
+Department & Computer Science and Engineering & Year / Sem & II Year / IV Sem \\ \hline
+Subject Code & UCS3462 & Subject Name & Internet Programming \\ \hline
+Batch & 2024--2028 & Faculty & \underline{\hspace{3cm}} \\ \hline
+\end{tabularx}
+
+\vspace{0.5cm}
+
+\section*{Exercise Title}
+Develop a full stack e-commerce web application that allows users to register, log in, browse products, manage cart items, and provides an admin dashboard for product, user, and analytics management.
+
+\section*{Objective}
+The objective of this project is to design and implement a microservices-based e-commerce application using modern web technologies. The application demonstrates:
+\begin{itemize}[leftmargin=1.5cm]
+    \item Frontend development using React with TypeScript and Vite.
+    \item Backend service creation using Spring Boot.
+    \item NoSQL data storage using MongoDB.
+    \item REST API communication between frontend and backend services.
+    \item Authentication and authorization using JWT.
+    \item Container-based deployment using Docker Compose.
+\end{itemize}
+
+\section*{Problem Statement}
+The system is developed to simulate a simple online shopping platform. Users can create accounts, log in securely, view a dynamic product catalog, search and filter products, and add items to a cart. Administrators can manage products, review registered users, and view system analytics such as stock levels and projected revenue.
+
+\section{Software and Tools Used}
+\begin{longtable}{|L{4.8cm}|L{9cm}|}
+\hline
+\textbf{Technology / Tool} & \textbf{Purpose} \\ \hline
+React + TypeScript + Vite & Frontend user interface development \\ \hline
+Tailwind CSS & Styling and responsive design \\ \hline
+Spring Boot & Backend REST microservices \\ \hline
+MongoDB & Database for users, products, and carts \\ \hline
+JWT & Authentication and role-based authorization \\ \hline
+Docker Compose & Multi-service orchestration \\ \hline
+Axios & API communication from frontend to backend \\ \hline
+React Router & Frontend routing and protected navigation \\ \hline
+\end{longtable}
+
+\section{Project Overview}
+This project is a microservices-based e-commerce application divided into frontend and backend modules. The main purpose of the system is to provide a simple but realistic online shopping workflow where users can create accounts, log in securely, browse products, apply filters, manage their cart, and where administrators can monitor the system through a dedicated dashboard.
+
+The project was designed to combine modern frontend development with service-oriented backend development. On the frontend side, React with TypeScript is used to build an interactive user interface. On the backend side, Spring Boot microservices handle authentication, product operations, and cart management independently. MongoDB is used as the persistence layer, and Docker Compose simplifies local execution by starting the full stack together.
+
+This structure makes the application easier to understand from an academic perspective because each module has a clear role and communicates through REST APIs. It also reflects the same architecture commonly followed in real-world web applications.
+
+\textbf{Frontend module:}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Login page
+    \item Registration page
+    \item Home page with live product catalog
+    \item Search, category filter, sorting, and price filtering
+    \item Cart management page
+    \item Protected user routes
+    \item Admin dashboard with overview, product management, user list, and analytics
+\end{itemize}
+
+\textbf{Backend module:}
+\begin{itemize}[leftmargin=1.5cm]
+    \item User Service on port 8081
+    \item Product Service on port 8082
+    \item Cart Service on port 8083
+    \item MongoDB for persistent storage
+\end{itemize}
+
+\section{Architecture Description}
+The application follows a distributed microservice architecture:
+\begin{itemize}[leftmargin=1.5cm]
+    \item The React frontend sends HTTP requests to backend services.
+    \item The User Service handles registration, login, token validation, user listing, and user summary.
+    \item The Product Service handles product CRUD operations, stock updates, and product summary generation.
+    \item The Cart Service handles cart creation, item addition, quantity updates, item removal, and cart summary generation.
+    \item The Cart Service communicates with the Product Service internally to calculate the total cart price.
+    \item MongoDB stores separate collections/databases for user, product, and cart data.
+    \item Docker Compose connects all services and provides a unified runtime setup.
+\end{itemize}
+
+\subsection{System Architecture Flow}
+The complete system works in the following flow:
+\begin{enumerate}[leftmargin=1.5cm]
+    \item A user opens the frontend application in the browser.
+    \item The frontend sends authentication requests to the User Service for registration and login.
+    \item After successful login, a JWT token is generated and used to protect authenticated routes.
+    \item The frontend fetches product data from the Product Service and displays it in the catalog page.
+    \item When a user adds items to the cart, requests are sent to the Cart Service.
+    \item The Cart Service contacts the Product Service internally to calculate the latest total price based on product information.
+    \item The admin dashboard collects data from user, product, and cart endpoints to display summary cards and analytics.
+    \item MongoDB stores the required data for each microservice in separate databases.
+\end{enumerate}
+
+\subsection{Hosting Perspective}
+This project can be executed locally using Docker Compose, but it is also suitable for cloud deployment:
+\begin{itemize}[leftmargin=1.5cm]
+    \item The React frontend can be hosted on \textbf{Netlify}.
+    \item The Spring Boot microservices can be hosted on \textbf{Render}.
+    \item The MongoDB database can be connected through \textbf{MongoDB Atlas}.
+    \item Production API URLs and secrets can be managed using environment variables.
+\end{itemize}
+
+\placeholderimage{System Architecture / Design Flow Diagram}{7cm}
+
+\section{Program File Organization}
+\begin{longtable}{|L{5.2cm}|L{8.6cm}|}
+\hline
+\textbf{Folder / File} & \textbf{Description} \\ \hline
+\codecell{vite-project/src/App.tsx} & Defines application routes for login, register, home, cart, and admin pages \\ \hline
+\codecell{vite-project/src/pages/Login.tsx} & User login interface \\ \hline
+\codecell{vite-project/src/pages/Register.tsx} & User registration interface \\ \hline
+\codecell{vite-project/src/pages/Home.tsx} & Product listing, search, filter, and add-to-cart functionality \\ \hline
+\codecell{vite-project/src/pages/Cart.tsx} & Cart display, quantity update, and remove item functionality \\ \hline
+\codecell{vite-project/src/pages/admin/*} & Admin dashboard pages for overview, products, users, and analytics \\ \hline
+\codecell{backend/user-service/*} & User registration, login, JWT validation, and summary service \\ \hline
+\codecell{backend/product-service/*} & Product management and stock service \\ \hline
+\codecell{backend/cart-service/*} & Cart management and analytics service \\ \hline
+\codecell{docker-compose.yml} & Starts MongoDB, backend services, and frontend together \\ \hline
+\end{longtable}
+
+\section{Important Frontend Files}
+Instead of printing the entire frontend source code, the following files are the most important for explaining the working of the application:
+\begin{itemize}[leftmargin=1.5cm]
+    \importantfile{App.tsx}{vite-project/src/App.tsx}{Contains the main routing structure of the application. It connects all pages such as login, register, home, cart, and admin sections using React Router.}
+    \importantfile{Home.tsx}{vite-project/src/pages/Home.tsx}{Implements the product listing page. It loads products from the backend and provides search, category filtering, price filtering, sorting, trending items, and add-to-cart operations.}
+    \importantfile{Cart.tsx}{vite-project/src/pages/Cart.tsx}{Displays cart contents for the logged-in user and supports quantity updates, item removal, and total price display.}
+    \importantfile{Login.tsx}{vite-project/src/pages/Login.tsx}{Accepts username and password, sends authentication requests, and redirects users based on their role.}
+    \importantfile{Register.tsx}{vite-project/src/pages/Register.tsx}{Allows a new user to create an account through the registration endpoint.}
+    \importantfile{ProtectedRoute.tsx}{vite-project/src/components/ProtectedRoute.tsx}{Protects authenticated routes and restricts admin-only access.}
+    \importantfile{AuthContext.tsx}{vite-project/src/context/AuthContext.tsx}{Maintains login state and shares authentication details throughout the application.}
+    \importantfile{Service files}{vite-project/src/services/}{Contains reusable Axios API methods for authentication, products, cart operations, and user summary requests.}
+\end{itemize}
+
+\section{Important Backend Files}
+The backend is organized into separate services. The following files are the most important for describing the implementation:
+\begin{itemize}[leftmargin=1.5cm]
+    \importantfile{AuthController.java}{backend/user-service/src/main/java/com/ecommerce/userservice/controller/AuthController.java}{Handles login and token validation endpoints and returns JWT-based authentication responses.}
+    \importantfile{UserController.java}{backend/user-service/src/main/java/com/ecommerce/userservice/controller/UserController.java}{Manages user registration, retrieval of users, admin listing, and user summary endpoints.}
+    \importantfile{UserService.java}{backend/user-service/src/main/java/com/ecommerce/userservice/service/UserService.java}{Contains password encoding, login verification, role assignment, and user summary generation logic.}
+    \importantfile{ProductController.java}{backend/product-service/src/main/java/com/ecommerce/productservice/controller/ProductController.java}{Exposes REST endpoints for adding, viewing, updating, deleting, and summarizing products.}
+    \importantfile{ProductService.java}{backend/product-service/src/main/java/com/ecommerce/productservice/service/ProductService.java}{Performs product sanitization, stock management, and inventory summary calculation.}
+    \importantfile{CartController.java}{backend/cart-service/src/main/java/com/ecommerce/cartservice/controller/CartController.java}{Handles cart item insertion, retrieval, update, removal, and cart analytics endpoints.}
+    \importantfile{CartService.java}{backend/cart-service/src/main/java/com/ecommerce/cartservice/service/CartService.java}{Contains the main cart business logic and interacts with the Product Service to compute total cart price.}
+    \importantfile{application.properties}{backend/*/src/main/resources/application.properties}{Stores configuration details such as service ports, MongoDB URI, CORS settings, JWT secret, and internal service URLs.}
+    \importantfile{docker-compose.yml}{docker-compose.yml}{Defines and orchestrates the frontend, backend services, and MongoDB in a single setup.}
+\end{itemize}
+
+\section{Frontend Features Implemented}
+\begin{itemize}[leftmargin=1.5cm]
+    \item User authentication screens for registration and login
+    \item Route protection for authenticated users
+    \item Role-based protection for admin pages
+    \item Product browsing with dynamic data from backend
+    \item Search by product name or description
+    \item Category-based filtering
+    \item Sort by featured, price ascending, price descending, and stock
+    \item Add product to cart
+    \item Update quantity and remove products from cart
+    \item Responsive admin dashboard
+\end{itemize}
+
+\section{Backend Features Implemented}
+\subsection{User Service}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Register new user
+    \item Encrypt password before storing
+    \item Login verification
+    \item JWT token generation
+    \item JWT token validation
+    \item Return user summary including admin and customer count
+\end{itemize}
+
+\subsection{Product Service}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Add product
+    \item View all products
+    \item View single product by ID
+    \item Update product
+    \item Delete product
+    \item Update stock
+    \item Generate product summary including total products, stock units, low stock count, and inventory value
+\end{itemize}
+
+\subsection{Cart Service}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Add item to cart
+    \item Fetch cart by user ID
+    \item Update cart item quantity
+    \item Remove item from cart
+    \item View all carts for admin
+    \item Generate cart summary including total carts, active carts, items in carts, and projected revenue
+\end{itemize}
+
+\section{Major API Endpoints}
+\subsection{User Service Endpoints}
+\begin{longtable}{|L{2.4cm}|L{4.8cm}|L{6.1cm}|}
+\hline
+\textbf{Method} & \textbf{Endpoint} & \textbf{Purpose} \\ \hline
+POST & \codecell{/users} & Register a new user \\ \hline
+GET & \codecell{/users} & Get all users \\ \hline
+GET & \codecell{/users/admin/all} & Get all users for admin view \\ \hline
+GET & \codecell{/users/summary} & Get user statistics \\ \hline
+POST & \codecell{/auth/login} & Authenticate user and issue JWT \\ \hline
+GET & \codecell{/auth/validate} & Validate JWT token \\ \hline
+\end{longtable}
+
+\subsection{Product Service Endpoints}
+\begin{longtable}{|L{2.4cm}|L{4.8cm}|L{6.1cm}|}
+\hline
+\textbf{Method} & \textbf{Endpoint} & \textbf{Purpose} \\ \hline
+POST & \codecell{/products} & Add a product \\ \hline
+GET & \codecell{/products} & Get all products \\ \hline
+GET & \codecell{/products/\{id\}} & Get product by ID \\ \hline
+PUT & \codecell{/products/\{id\}} & Update product details \\ \hline
+PUT & \codecell{/products/\{id\}/stock} & Update product stock \\ \hline
+DELETE & \codecell{/products/\{id\}} & Delete product \\ \hline
+GET & \codecell{/products/admin/summary} & Get product summary \\ \hline
+\end{longtable}
+
+\subsection{Cart Service Endpoints}
+\begin{longtable}{|L{2.4cm}|L{4.8cm}|L{6.1cm}|}
+\hline
+\textbf{Method} & \textbf{Endpoint} & \textbf{Purpose} \\ \hline
+POST & \codecell{/cart/\{userId\}/items} & Add item to cart \\ \hline
+GET & \codecell{/cart/\{userId\}} & Get cart for a user \\ \hline
+PUT & \codecell{/cart/\{userId\}/items/\{productId\}} & Update cart item quantity \\ \hline
+DELETE & \codecell{/cart/\{userId\}/items/\{productId\}} & Remove item from cart \\ \hline
+GET & \codecell{/cart/admin/all} & Get all carts \\ \hline
+GET & \codecell{/cart/admin/summary} & Get cart analytics summary \\ \hline
+\end{longtable}
+
+\section{Database Details}
+MongoDB is used as the backend database. Separate databases are configured for each service:
+\begin{itemize}[leftmargin=1.5cm]
+    \item \texttt{user\_db} for user account data
+    \item \texttt{product\_db} for product catalog data
+    \item \texttt{cart\_db} for cart and cart item data
+\end{itemize}
+
+\textbf{Main collections / entities used:}
+\begin{itemize}[leftmargin=1.5cm]
+    \item User
+    \item Product
+    \item Cart
+    \item CartItem
+\end{itemize}
+
+\section{Docker and Deployment Flow}
+The project contains a \texttt{docker-compose.yml} file that starts the following services together:
+\begin{itemize}[leftmargin=1.5cm]
+    \item MongoDB container
+    \item User Service container
+    \item Product Service container
+    \item Cart Service container
+    \item Frontend container
+\end{itemize}
+
+This setup simplifies project execution, testing, and demonstration by allowing all modules to run as a single integrated system. It removes the need to start each service manually and ensures that dependencies between MongoDB and the Spring Boot services are preserved correctly.
+
+In a hosted environment, the same project can be separated into deployment layers. The frontend can be deployed through Netlify for static hosting, while the backend microservices can be deployed individually on Render. This model is useful because it keeps the frontend lightweight and allows backend services to scale independently. A managed MongoDB service such as MongoDB Atlas can be used in the cloud to make the application accessible from anywhere.
+
+\section{Observation}
+During project implementation and execution, the following observations were made:
+\begin{itemize}[leftmargin=1.5cm]
+    \item The microservices approach makes the application modular and easier to manage.
+    \item JWT-based authentication protects secured routes and admin pages.
+    \item The cart service depends on the product service to calculate accurate total prices.
+    \item React and Tailwind CSS provide a responsive and user-friendly frontend experience.
+    \item MongoDB is suitable for storing flexible JSON-like data structures used in this project.
+    \item Docker Compose makes multi-service setup simpler and more consistent.
+    \item Deployment using Netlify and Render is suitable because the application is naturally divided into frontend and backend layers.
+    \item The admin dashboard improves maintainability by providing a clear summary of users, product stock, and projected cart revenue.
+\end{itemize}
+
+\section{Sample Output Screens}
+The following screenshots represent the major interfaces of the application. Each page contains two images arranged one after another vertically for better readability in the printed report.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth,height=8cm,keepaspectratio]{login.png}
+    \caption{Login Page}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth,height=8cm,keepaspectratio]{register.png}
+    \caption{Registration Page}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=8.5cm,keepaspectratio]{home.png}
+    \caption{Product Catalog}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=8.5cm,keepaspectratio]{cart.png}
+    \caption{Shopping Cart}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=8.5cm,keepaspectratio]{admin.png}
+    \caption{Admin Overview}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=8.5cm,keepaspectratio]{admin_products.png}
+    \caption{Product Management}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=8.5cm,keepaspectratio]{users.png}
+    \caption{User Management}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=8.5cm,keepaspectratio]{analytics.png}
+    \caption{Analytics Dashboard}
+\end{figure}
+
+\section{Result}
+Thus, the full stack e-commerce web application was successfully designed and implemented using React, Spring Boot, MongoDB, and Docker. The application supports authentication, product browsing, cart operations, and administrative monitoring through a structured microservices architecture.
+
+\section{Conclusion}
+This project demonstrates the practical implementation of modern internet programming concepts including frontend development, RESTful API design, backend microservices, NoSQL database integration, authentication, deployment planning, and containerized execution. The application successfully connects user management, product management, and cart processing into a single working e-commerce system. It also provides a strong foundation for future expansion such as payment integration, order tracking, production cloud deployment, and advanced reporting features.
+
+\section*{Viva Voce Preparation Points}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Why microservices were used instead of a single monolithic backend
+    \item Purpose of JWT in authentication
+    \item How MongoDB is used in this project
+    \item How Docker Compose helps run all services together
+    \item How the cart total is calculated using product service data
+    \item Difference between customer routes and admin routes
+\end{itemize}
+
+\section*{Submission Notes}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Fill in the date and faculty name at the top.
+    \item Keep the architecture placeholder and replace it with your final system architecture diagram.
+    \item If your faculty expects source code pages, add them after this report as an appendix.
+    \item Update the assignment number if your class record uses a different numbering format.
+\end{itemize}
+
+\end{document}

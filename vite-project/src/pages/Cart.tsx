@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -15,6 +16,7 @@ export default function Cart() {
   const [productsMap, setProductsMap] = useState<Record<string, Product>>({});
   const [busyProductId, setBusyProductId] = useState<string | null>(null);
   const { username } = useAuth();
+  const navigate = useNavigate();
   const userId = username || "";
 
   useEffect(() => {
@@ -210,7 +212,10 @@ export default function Cart() {
               </span>
             </div>
 
-            <button className="mt-4 w-full py-4 bg-indigo-600 text-white font-semibold rounded-2xl hover:bg-indigo-700 active:scale-95 transition-all">
+            <button
+              onClick={() => navigate("/checkout")}
+              className="mt-4 w-full py-4 bg-indigo-600 text-white font-semibold rounded-2xl hover:bg-indigo-700 active:scale-95 transition-all"
+            >
               Proceed to Checkout
             </button>
           </>

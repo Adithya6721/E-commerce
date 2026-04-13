@@ -65,6 +65,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1">
           {navLink("/", "Home")}
+          {role !== "ADMIN" && navLink("/orders", "Orders")}
           {role === "ADMIN" && navLink("/admin", "Admin")}
           <Link
             to="/cart"
