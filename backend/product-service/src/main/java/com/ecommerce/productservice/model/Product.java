@@ -20,4 +20,6 @@ public class Product {
     private int stock;
     private String category;
     private String image;
+    private String sellerId;
+    private double averageRating;
 }

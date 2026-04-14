@@ -9,6 +9,8 @@ export interface Product {
   stock: number;
   category: string;
   image: string;
+  sellerId?: string;
+  averageRating?: number;
 }
 
 export interface ProductInput {
@@ -18,6 +20,8 @@ export interface ProductInput {
   stock: number;
   category: string;
   image: string;
+  sellerId?: string;
+  averageRating?: number;
 }
 
 export interface ProductSummary {

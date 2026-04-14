@@ -1,10 +1,12 @@
-import { LayoutDashboard, LineChart, Package, Users } from "lucide-react";
+import { LayoutDashboard, LineChart, ShieldAlert, Users, Stamp, PackageSearch } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 import Navbar from "../Navbar";
 
 const navItems = [
-  { to: "/admin", label: "Overview", icon: LayoutDashboard, end: true },
-  { to: "/admin/products", label: "Products", icon: Package },
+  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin/sellers", label: "Seller Apps", icon: Stamp },
+  { to: "/admin/orders", label: "Global Orders", icon: PackageSearch },
+  { to: "/admin/products", label: "Moderation", icon: ShieldAlert },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/analytics", label: "Analytics", icon: LineChart },
 ];
