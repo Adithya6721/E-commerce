@@ -11,6 +11,10 @@ const statusTone: Record<string, string> = {
   SHIPPED: "bg-indigo-100 text-indigo-800",
   DELIVERED: "bg-emerald-100 text-emerald-800",
   CANCELLED: "bg-rose-100 text-rose-800",
+  // legacy localStorage statuses — mapped gracefully
+  PROCESSING: "bg-amber-100 text-amber-800",
+  DISPATCHED: "bg-sky-100 text-sky-800",
+  OUT_FOR_DELIVERY: "bg-indigo-100 text-indigo-800",
 };
 
 const STATUS_STEPS = ["PLACED", "CONFIRMED", "PACKED", "SHIPPED", "DELIVERED"] as const;
@@ -20,6 +24,7 @@ export default function Orders() {
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     if (!username) {
@@ -32,6 +37,7 @@ export default function Orders() {
     const loadOrders = async () => {
       setIsLoading(true);
       setLoadError(null);
+      setIsOffline(false);
       try {
         const data = await getMyOrders();
         if (!cancelled) {
@@ -39,7 +45,13 @@ export default function Orders() {
         }
       } catch (error) {
         if (!cancelled) {
-          setLoadError(error instanceof Error ? error.message : "Could not load orders.");
+          // Order-service may not be deployed yet — show helpful message instead of crashing
+          const msg = error instanceof Error ? error.message : "";
+          if (msg.includes("Network Error") || msg.includes("ERR_") || msg.includes("timeout") || msg.includes("404")) {
+            setIsOffline(true);
+          } else {
+            setLoadError("Could not load orders from server.");
+          }
         }
       } finally {
         if (!cancelled) {
@@ -64,6 +76,13 @@ export default function Orders() {
           <h1 className="mt-2 text-3xl font-semibold text-slate-900">Track your order history</h1>
         </div>
 
+        {isOffline && (
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+            <p className="font-semibold">Order service is starting up...</p>
+            <p className="mt-1">Your orders are saved. Please check back in a minute once the server is ready.</p>
+          </div>
+        )}
+
         {loadError && (
           <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
             {loadError}
@@ -80,7 +99,7 @@ export default function Orders() {
               </div>
             ))}
           </div>
-        ) : orders.length === 0 ? (
+        ) : isOffline ? null : orders.length === 0 ? (
           <div className="mt-8 rounded-[2rem] border border-dashed border-slate-200 bg-white/80 px-6 py-16 text-center">
             <h2 className="text-xl font-semibold text-slate-900">No orders yet</h2>
             <p className="mt-2 text-sm text-slate-500">
@@ -105,7 +124,7 @@ export default function Orders() {
                 <article key={order.id} className="rounded-[2rem] border border-white bg-white p-6 shadow-sm">
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.24em] text-slate-500">{order.id}</p>
+                      <p className="font-mono text-xs uppercase tracking-[0.24em] text-slate-400">{order.id}</p>
                       <h2 className="mt-2 text-xl font-semibold text-slate-900">
                         {new Date(order.createdAt).toLocaleString()}
                       </h2>
@@ -121,47 +140,56 @@ export default function Orders() {
                     </div>
                   </div>
 
-                  {/* Order tracking timeline */}
+                  {/* Order tracking timeline stepper */}
                   {!isCancelled && (
-                    <div className="mt-6 flex items-center gap-0">
-                      {STATUS_STEPS.map((step, index) => {
-                        const isCompleted = index <= currentStepIndex;
-                        const isActive = index === currentStepIndex;
-                        return (
-                          <div key={step} className="flex flex-1 items-center">
-                            <div className="flex flex-col items-center">
-                              <div
-                                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition ${
-                                  isActive
-                                    ? "bg-indigo-600 text-white ring-4 ring-indigo-100"
-                                    : isCompleted
-                                      ? "bg-emerald-500 text-white"
-                                      : "bg-slate-100 text-slate-400"
-                                }`}
-                              >
-                                {isCompleted && !isActive ? "✓" : index + 1}
+                    <div className="mt-6 overflow-x-auto">
+                      <div className="flex min-w-[500px] items-center">
+                        {STATUS_STEPS.map((step, index) => {
+                          const isCompleted = index <= currentStepIndex;
+                          const isActive = index === currentStepIndex;
+                          return (
+                            <div key={step} className="flex flex-1 items-center">
+                              <div className="flex flex-col items-center">
+                                <div
+                                  className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                                    isActive
+                                      ? "bg-indigo-600 text-white ring-4 ring-indigo-100 scale-110"
+                                      : isCompleted
+                                        ? "bg-emerald-500 text-white"
+                                        : "bg-slate-100 text-slate-400"
+                                  }`}
+                                >
+                                  {isCompleted && !isActive ? "✓" : index + 1}
+                                </div>
+                                <span className={`mt-2 text-[10px] font-semibold uppercase tracking-wider text-center ${
+                                  isActive ? "text-indigo-600" : isCompleted ? "text-slate-700" : "text-slate-400"
+                                }`}>
+                                  {step}
+                                </span>
                               </div>
-                              <span className={`mt-2 text-[10px] font-medium uppercase tracking-wider ${
-                                isCompleted ? "text-slate-900" : "text-slate-400"
-                              }`}>
-                                {step}
-                              </span>
+                              {index < STATUS_STEPS.length - 1 && (
+                                <div className={`mx-1 h-0.5 flex-1 rounded-full transition-all ${
+                                  index < currentStepIndex ? "bg-emerald-400" : "bg-slate-200"
+                                }`} />
+                              )}
                             </div>
-                            {index < STATUS_STEPS.length - 1 && (
-                              <div className={`mx-1 h-0.5 flex-1 ${
-                                index < currentStepIndex ? "bg-emerald-400" : "bg-slate-200"
-                              }`} />
-                            )}
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
+                  {isCancelled && (
+                    <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                      This order was cancelled.
+                    </div>
+                  )}
+
+                  {/* Order items */}
                   <div className="mt-5 grid gap-3">
                     {order.items.map((item) => (
                       <div key={`${order.id}-${item.productId}`} className="flex items-center gap-4 rounded-2xl bg-slate-50 p-3">
-                        <div className="h-14 w-14 overflow-hidden rounded-2xl bg-slate-100">
+                        <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100">
                           {item.image ? (
                             <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
                           ) : null}

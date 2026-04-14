@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -7,6 +7,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isSellerHint = searchParams.get("seller") === "1";
   const { login } = useAuth();
 
   const handleChange =
@@ -21,7 +23,17 @@ export default function Login() {
 
     try {
       const auth = await login(data);
-      navigate(auth.role === "ADMIN" ? "/admin" : "/");
+      if (auth.role === "ADMIN") {
+        navigate("/admin");
+      } else if (auth.role === "SELLER") {
+        navigate("/"); // We will redirect this to seller dashboard later
+      } else {
+        if (isSellerHint) {
+          navigate("/seller/apply");
+        } else {
+          navigate("/");
+        }
+      }
     } catch {
       setError("Login failed. Please check your username and password.");
     } finally {
@@ -37,6 +49,12 @@ export default function Login() {
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Welcome Back 👋
         </h2>
+
+        {isSellerHint && (
+          <div className="mb-6 rounded-xl bg-purple-50 border border-purple-200 px-4 py-3 text-sm text-purple-700">
+            Account created! Please log in to complete your seller application.
+          </div>
+        )}
 
         {/* Username */}
         <div className="mb-4">

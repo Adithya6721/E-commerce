@@ -79,6 +79,18 @@ export default function Navbar() {
               Orders
             </Link>
           )}
+          {role !== "ADMIN" && role !== "SELLER" && (
+            <Link
+              to="/seller/apply"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                pathname === "/seller/apply"
+                  ? "bg-purple-600 text-white shadow"
+                  : "text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+              }`}
+            >
+              Become a Seller
+            </Link>
+          )}
           {role === "ADMIN" && navLink("/admin", "Admin")}
           <Link
             to="/cart"

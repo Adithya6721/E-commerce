@@ -1,83 +1,139 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
-import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [data, setData] = useState({ username: "", password: "" });
+  const [isSeller, setIsSeller] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
+    if (!data.username.trim() || !data.password.trim()) {
+      setError("Please fill in all fields.");
+      return;
+    }
     setError("");
     setIsSubmitting(true);
 
     try {
       await register(data);
-      navigate("/login");
+      if (isSeller) {
+        // After registering as customer, redirect to login with a hint to apply
+        navigate("/login?seller=1");
+      } else {
+        navigate("/login");
+      }
     } catch {
-      setError("Registration failed. Please try again.");
+      setError("Registration failed. Username might already be taken.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-400 to-pink-500">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
 
-        {/* Title */}
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Create Account 🚀
-        </h2>
-
-        {/* Username */}
-        <div className="mb-4">
-          <input
-            name="username"
-            placeholder="Username"
-            onChange={(e) => setData({ ...data, username: e.target.value })}
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-          />
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-7">
+          <h1 className="text-3xl font-bold text-white">Create Account 🚀</h1>
+          <p className="mt-1 text-sm text-indigo-200">Join our marketplace today</p>
         </div>
 
-        {/* Password */}
-        <div className="mb-6">
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            onChange={(e) => setData({ ...data, password: e.target.value })}
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-          />
-        </div>
+        <div className="px-8 py-7 space-y-5">
 
-        {error && (
-          <p className="text-red-500 text-sm mb-4 text-center">
-            {error}
-          </p>
-        )}
+          {/* Account Type Toggle */}
+          <div>
+            <p className="text-sm font-semibold text-slate-700 mb-3">I want to join as:</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsSeller(false)}
+                className={`flex flex-col items-center gap-2 rounded-2xl border-2 py-4 text-sm font-semibold transition-all ${
+                  !isSeller
+                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                    : "border-slate-200 text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                <span className="text-2xl">🛍️</span>
+                Customer
+                {!isSeller && <span className="text-[10px] uppercase tracking-widest text-indigo-500">Selected</span>}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSeller(true)}
+                className={`flex flex-col items-center gap-2 rounded-2xl border-2 py-4 text-sm font-semibold transition-all ${
+                  isSeller
+                    ? "border-purple-500 bg-purple-50 text-purple-700"
+                    : "border-slate-200 text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                <span className="text-2xl">🏪</span>
+                Seller
+                {isSeller && <span className="text-[10px] uppercase tracking-widest text-purple-500">Selected</span>}
+              </button>
+            </div>
+            {isSeller && (
+              <p className="mt-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700">
+                You'll register as a Customer first. After login, you can apply for seller verification from your account.
+              </p>
+            )}
+          </div>
 
-        {/* Button */}
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50"
-        >
-          {isSubmitting ? "Registering..." : "Register"}
-        </button>
+          {/* Username */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Username</label>
+            <input
+              name="username"
+              placeholder="Choose a username"
+              value={data.username}
+              onChange={(e) => setData({ ...data, username: e.target.value })}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition text-sm"
+            />
+          </div>
 
-        {/* Footer */}
-        <p className="text-sm text-gray-500 text-center mt-6">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-purple-600 font-medium hover:underline"
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <input
+              name="password"
+              type="password"
+              placeholder="Create a password"
+              value={data.password}
+              onChange={(e) => setData({ ...data, password: e.target.value })}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition text-sm"
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
+              {error}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            onClick={() => void handleSubmit()}
+            disabled={isSubmitting}
+            className={`w-full py-3 rounded-xl font-semibold text-white transition disabled:opacity-50 ${
+              isSeller
+                ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+            }`}
           >
-            Login
-          </Link>
-        </p>
+            {isSubmitting ? "Creating account..." : isSeller ? "Register & Become a Seller" : "Create Account"}
+          </button>
+
+          {/* Login link */}
+          <p className="text-sm text-slate-500 text-center">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-600 font-medium hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
