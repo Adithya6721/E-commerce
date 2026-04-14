@@ -27,6 +27,14 @@ services:
     depends_on:
       - mongodb
 
+  order-service:
+    build: ./backend/order-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mongodb
+      - product-service
+
   frontend:
     build:
       context: ./vite-project
@@ -34,12 +42,14 @@ services:
         VITE_USER_API_URL: http://localhost:8081
         VITE_PRODUCT_API_URL: http://localhost:8082
         VITE_CART_API_URL: http://localhost:8083
+        VITE_ORDER_API_URL: http://localhost:8084
     ports:
       - "5173:5173"
     depends_on:
       - user-service
       - product-service
       - cart-service
+      - order-service
 
 volumes:
   mongo-data:

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Package } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { CART_UPDATED_EVENT, getCart } from "../services/cartService";
 
@@ -65,7 +66,19 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1">
           {navLink("/", "Home")}
-          {role !== "ADMIN" && navLink("/orders", "Orders")}
+          {role !== "ADMIN" && (
+            <Link
+              to="/orders"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                pathname === "/orders"
+                  ? "bg-indigo-600 text-white shadow"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+              }`}
+            >
+              <Package className="h-4 w-4" />
+              Orders
+            </Link>
+          )}
           {role === "ADMIN" && navLink("/admin", "Admin")}
           <Link
             to="/cart"

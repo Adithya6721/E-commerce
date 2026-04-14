@@ -1,33 +1,36 @@
-import type { Cart } from "./cartService";
-import type { Product } from "./productService";
+import api from "./api";
+import { API_BASE_URLS } from "./baseUrls";
 
 export type OrderStatus =
-  | "PROCESSING"
-  | "DISPATCHED"
-  | "OUT_FOR_DELIVERY"
-  | "DELIVERED";
+  | "PLACED"
+  | "CONFIRMED"
+  | "PACKED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
 
-export interface CheckoutFormData {
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  category: string;
+  sellerId: string;
+}
+
+export interface ShippingDetails {
   fullName: string;
   phone: string;
   address: string;
   city: string;
   pincode: string;
-  paymentMethod: "CARD" | "UPI" | "COD";
-  cardName: string;
-  cardNumber: string;
-  expiry: string;
-  cvv: string;
-  upiId: string;
 }
 
-export interface OrderItem {
-  productId: string;
-  name: string;
-  category: string;
-  image: string;
-  quantity: number;
-  price: number;
+export interface StatusHistoryEntry {
+  status: OrderStatus;
+  timestamp: string;
+  changedBy: string;
 }
 
 export interface OrderRecord {
@@ -36,92 +39,50 @@ export interface OrderRecord {
   items: OrderItem[];
   totalAmount: number;
   status: OrderStatus;
-  paymentMethod: CheckoutFormData["paymentMethod"];
-  shippingDetails: Pick<
-    CheckoutFormData,
-    "fullName" | "phone" | "address" | "city" | "pincode"
-  >;
+  paymentMethod: string;
+  shippingDetails: ShippingDetails;
+  statusHistory: StatusHistoryEntry[];
   createdAt: string;
   estimatedDelivery: string;
 }
 
-const ORDERS_KEY = "orders";
-
-function readOrders(): OrderRecord[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const stored = window.localStorage.getItem(ORDERS_KEY);
-    if (!stored) {
-      return [];
-    }
-
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+export interface CreateOrderRequest {
+  userId: string;
+  items: OrderItem[];
+  totalAmount: number;
+  paymentMethod: string;
+  shippingDetails: ShippingDetails;
 }
 
-function writeOrders(orders: OrderRecord[]) {
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-  }
-}
+export const createOrder = async (data: CreateOrderRequest): Promise<OrderRecord> => {
+  const res = await api.post(`${API_BASE_URLS.order}/orders`, data);
+  return res.data;
+};
 
-function buildEstimatedDelivery() {
-  const date = new Date();
-  date.setDate(date.getDate() + 4);
-  return date.toISOString();
-}
+export const getMyOrders = async (): Promise<OrderRecord[]> => {
+  const res = await api.get(`${API_BASE_URLS.order}/orders/my`);
+  return res.data;
+};
 
-export function getOrdersByUser(userId: string) {
-  return readOrders()
-    .filter((order) => order.userId === userId)
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-}
+export const getOrderById = async (orderId: string): Promise<OrderRecord> => {
+  const res = await api.get(`${API_BASE_URLS.order}/orders/${orderId}`);
+  return res.data;
+};
 
-export function getOrderById(orderId: string) {
-  return readOrders().find((order) => order.id === orderId) ?? null;
-}
+export const getAllOrders = async (): Promise<OrderRecord[]> => {
+  const res = await api.get(`${API_BASE_URLS.order}/orders/admin/all`);
+  return res.data;
+};
 
-export function createOrderFromCart(
-  userId: string,
-  cart: Cart,
-  productsMap: Record<string, Product>,
-  form: CheckoutFormData
-) {
-  const order: OrderRecord = {
-    id: `ORD-${Date.now()}`,
-    userId,
-    items: cart.items.map((item) => {
-      const product = productsMap[item.productId];
-      return {
-        productId: item.productId,
-        name: product?.name ?? item.productId,
-        category: product?.category ?? "Product",
-        image: product?.image ?? "",
-        quantity: item.quantity,
-        price: product?.price ?? 0,
-      };
-    }),
-    totalAmount: cart.totalPrice,
-    status: "PROCESSING",
-    paymentMethod: form.paymentMethod,
-    shippingDetails: {
-      fullName: form.fullName,
-      phone: form.phone,
-      address: form.address,
-      city: form.city,
-      pincode: form.pincode,
-    },
-    createdAt: new Date().toISOString(),
-    estimatedDelivery: buildEstimatedDelivery(),
-  };
+export const getSellerOrders = async (): Promise<OrderRecord[]> => {
+  const res = await api.get(`${API_BASE_URLS.order}/orders/seller/my`);
+  return res.data;
+};
 
-  const orders = readOrders();
-  writeOrders([order, ...orders]);
-  return order;
-}
+export const updateOrderStatus = async (
+  orderId: string,
+  status: OrderStatus
+): Promise<OrderRecord> => {
+  const res = await api.put(`${API_BASE_URLS.order}/orders/${orderId}/status`, { status });
+  return res.data;
+};

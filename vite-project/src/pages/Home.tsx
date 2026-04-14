@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Flame, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { addToCart } from "../services/cartService";
@@ -213,8 +214,9 @@ export default function Home() {
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {trendingProducts.map((product) => (
-              <div
+              <Link
                 key={product.id}
+                to={`/products/${product.id}`}
                 className="group overflow-hidden rounded-[2rem] border border-white bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="relative">
@@ -230,7 +232,7 @@ export default function Home() {
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-lg font-bold text-slate-900">Rs {product.price}</span>
                     <button
-                      onClick={() => void handleAdd(product)}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); void handleAdd(product); }}
                       disabled={pendingProductId === product.id}
                       className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:bg-slate-400"
                     >
@@ -239,7 +241,7 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -342,8 +344,9 @@ export default function Home() {
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
               {filteredProducts.map((product) => (
-                <article
+                <Link
                   key={product.id}
+                  to={`/products/${product.id}`}
                   className="group overflow-hidden rounded-[2rem] border border-white bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
                 >
                   <div className="relative overflow-hidden rounded-[1.5rem]">
@@ -374,14 +377,14 @@ export default function Home() {
                       <span className="text-slate-500">Stock: {product.stock}</span>
                     </div>
                     <button
-                      onClick={() => void handleAdd(product)}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); void handleAdd(product); }}
                       disabled={pendingProductId === product.id}
                       className="mt-5 w-full rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
                     >
                       {pendingProductId === product.id ? "Adding..." : "Add to Cart"}
                     </button>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           )}

@@ -1,19 +1,62 @@
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { getOrderById } from "../services/orderService";
+import { getOrderById, type OrderRecord } from "../services/orderService";
 
 const statusTone: Record<string, string> = {
-  PROCESSING: "bg-amber-100 text-amber-800",
-  DISPATCHED: "bg-sky-100 text-sky-800",
-  OUT_FOR_DELIVERY: "bg-indigo-100 text-indigo-800",
+  PLACED: "bg-violet-100 text-violet-800",
+  CONFIRMED: "bg-sky-100 text-sky-800",
+  PACKED: "bg-amber-100 text-amber-800",
+  SHIPPED: "bg-indigo-100 text-indigo-800",
   DELIVERED: "bg-emerald-100 text-emerald-800",
+  CANCELLED: "bg-rose-100 text-rose-800",
 };
 
 export default function OrderConfirmation() {
   const { orderId = "" } = useParams();
-  const order = getOrderById(orderId);
+  const [order, setOrder] = useState<OrderRecord | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!order) {
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadOrder = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getOrderById(orderId);
+        if (!cancelled) {
+          setOrder(data);
+        }
+      } catch {
+        if (!cancelled) {
+          setNotFound(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadOrder();
+    return () => {
+      cancelled = true;
+    };
+  }, [orderId]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ecfdf5_0%,#ffffff_40%,#f8fafc_100%)]">
+        <Navbar />
+        <main className="mx-auto max-w-4xl px-4 py-10 text-center text-sm text-slate-500 sm:px-6 lg:px-8">
+          Loading order details...
+        </main>
+      </div>
+    );
+  }
+
+  if (notFound || !order) {
     return <Navigate to="/orders" replace />;
   }
 
@@ -29,9 +72,6 @@ export default function OrderConfirmation() {
           <h1 className="mt-5 text-4xl font-semibold text-slate-900">
             Payment received. Your order is now being prepared.
           </h1>
-          <p className="mt-4 max-w-2xl text-sm text-slate-600">
-            This confirmation is handled in the frontend for now. Once the orders backend is added, the same screen can be backed by real persisted order data.
-          </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <InfoCard label="Order ID" value={order.id} />

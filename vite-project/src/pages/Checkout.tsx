@@ -9,9 +9,23 @@ import {
 } from "../services/cartService";
 import { getProductById, type Product } from "../services/productService";
 import {
-  createOrderFromCart,
-  type CheckoutFormData,
+  createOrder,
+  type CreateOrderRequest,
 } from "../services/orderService";
+
+interface CheckoutFormData {
+  fullName: string;
+  phone: string;
+  address: string;
+  city: string;
+  pincode: string;
+  paymentMethod: "CARD" | "UPI" | "COD";
+  cardName: string;
+  cardNumber: string;
+  expiry: string;
+  cvv: string;
+  upiId: string;
+}
 
 const EMPTY_FORM: CheckoutFormData = {
   fullName: "",
@@ -153,11 +167,40 @@ export default function Checkout() {
       setIsSubmitting(true);
       setError("");
 
-      const order = createOrderFromCart(userId, cart, productsMap, form);
+      const orderRequest: CreateOrderRequest = {
+        userId,
+        items: cart.items.map((item) => {
+          const product = productsMap[item.productId];
+          return {
+            productId: item.productId,
+            name: product?.name ?? item.productId,
+            price: product?.price ?? 0,
+            quantity: item.quantity,
+            image: product?.image ?? "",
+            category: product?.category ?? "General",
+            sellerId: "",
+          };
+        }),
+        totalAmount: grandTotal,
+        paymentMethod: form.paymentMethod,
+        shippingDetails: {
+          fullName: form.fullName,
+          phone: form.phone,
+          address: form.address,
+          city: form.city,
+          pincode: form.pincode,
+        },
+      };
+
+      const order = await createOrder(orderRequest);
       await clearCart(cart);
       navigate(`/orders/${order.id}`);
-    } catch {
-      setError("Could not place the order. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not place the order. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -172,9 +215,6 @@ export default function Checkout() {
           <div>
             <p className="text-sm uppercase tracking-[0.28em] text-indigo-500">Checkout</p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900">Complete your payment</h1>
-            <p className="mt-2 text-sm text-slate-500">
-              This is a frontend flow for now. Orders are stored locally until you connect a backend orders service.
-            </p>
           </div>
           <Link
             to="/cart"
