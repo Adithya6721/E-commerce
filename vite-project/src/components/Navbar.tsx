@@ -9,7 +9,13 @@ export default function Navbar() {
   const { pathname } = useLocation();
   const [cartCount, setCartCount] = useState(0);
 
+  // Only load cart count for CUSTOMER role
   useEffect(() => {
+    if (role !== "CUSTOMER") {
+      setCartCount(0);
+      return;
+    }
+
     let cancelled = false;
 
     const loadCartCount = async () => {
@@ -42,7 +48,7 @@ export default function Navbar() {
       cancelled = true;
       window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated);
     };
-  }, [username]);
+  }, [username, role]);
 
   const navLink = (to: string, label: string) => (
     <Link
@@ -65,48 +71,44 @@ export default function Navbar() {
         </span>
 
         <div className="flex items-center gap-1">
-          {navLink("/", "Home")}
-          {role !== "ADMIN" && (
-            <Link
-              to="/orders"
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                pathname === "/orders"
-                  ? "bg-indigo-600 text-white shadow"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-              }`}
-            >
-              <Package className="h-4 w-4" />
-              Orders
-            </Link>
+          {/* CUSTOMER: show shopping nav */}
+          {role === "CUSTOMER" && (
+            <>
+              {navLink("/", "Home")}
+              <Link
+                to="/orders"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  pathname === "/orders"
+                    ? "bg-indigo-600 text-white shadow"
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <Package className="h-4 w-4" />
+                Orders
+              </Link>
+              <Link
+                to="/cart"
+                className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  pathname === "/cart"
+                    ? "bg-indigo-600 text-white shadow"
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                Cart
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-rose-500 text-white text-[11px] font-semibold flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            </>
           )}
-          {role !== "ADMIN" && role !== "SELLER" && (
-            <Link
-              to="/seller/apply"
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                pathname === "/seller/apply"
-                  ? "bg-purple-600 text-white shadow"
-                  : "text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-              }`}
-            >
-              Become a Seller
-            </Link>
-          )}
-          {role === "ADMIN" && navLink("/admin", "Admin")}
-          <Link
-            to="/cart"
-            className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              pathname === "/cart"
-                ? "bg-indigo-600 text-white shadow"
-                : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-            }`}
-          >
-            Cart
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-rose-500 text-white text-[11px] font-semibold flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+
+          {/* ADMIN: show admin link */}
+          {role === "ADMIN" && navLink("/admin", "Admin Dashboard")}
+
+          {/* SELLER: show seller dashboard link */}
+          {role === "SELLER" && navLink("/seller", "Seller Dashboard")}
         </div>
 
         <div className="flex items-center gap-3">
@@ -114,6 +116,16 @@ export default function Navbar() {
             <>
               <span className="text-sm text-gray-600">
                 Hi, <span className="font-semibold text-gray-900">{username}</span>
+                {role === "SELLER" && (
+                  <span className="ml-1.5 rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-700">
+                    Seller
+                  </span>
+                )}
+                {role === "ADMIN" && (
+                  <span className="ml-1.5 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+                    Admin
+                  </span>
+                )}
               </span>
               <button
                 onClick={logout}

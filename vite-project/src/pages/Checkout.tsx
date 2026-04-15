@@ -178,7 +178,7 @@ export default function Checkout() {
             quantity: item.quantity,
             image: product?.image ?? "",
             category: product?.category ?? "General",
-            sellerId: "",
+            sellerId: product?.sellerId ?? "",
           };
         }),
         totalAmount: grandTotal,

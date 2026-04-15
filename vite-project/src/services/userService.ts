@@ -11,6 +11,7 @@ export interface UserSummary {
   totalUsers: number;
   totalAdmins: number;
   totalCustomers: number;
+  totalSellers: number;
 }
 
 export const getUsers = async (): Promise<UserRecord[]> => {

@@ -1,16 +1,68 @@
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { LayoutDashboard, Package, ShoppingCart, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Loader2 } from "lucide-react";
+import { getMySellerProfile, type SellerProfile } from "../../services/sellerService";
+import SellerOnboarding from "../../pages/seller/SellerOnboarding";
 
 export default function SellerLayout() {
   const { pathname } = useLocation();
   const { username, logout } = useAuth();
+  
+  const [profile, setProfile] = useState<SellerProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getMySellerProfile();
+        setProfile(data);
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          setProfile(null); // Needs to onboard
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    void fetchProfile();
+  }, []);
 
   const links = [
     { to: "/seller", icon: LayoutDashboard, label: "Overview" },
     { to: "/seller/products", icon: Package, label: "My Products" },
     { to: "/seller/orders", icon: ShoppingCart, label: "Orders" },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-slate-50 gap-4">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        <p className="text-sm font-medium text-slate-500">Loading your seller profile...</p>
+      </div>
+    );
+  }
+
+  // Intercept if not verified or doesn't have a profile
+  if (!profile || profile.verificationStatus !== "VERIFIED") {
+    return (
+      <div className="flex h-screen w-full relative">
+        <SellerOnboarding 
+          status={profile?.verificationStatus}
+          onSuccess={(newProfile) => setProfile(newProfile)} 
+        />
+        <div className="absolute top-6 right-6">
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-slate-50">

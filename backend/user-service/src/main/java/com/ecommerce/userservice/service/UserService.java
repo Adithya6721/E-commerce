@@ -48,11 +48,14 @@ public class UserService {
         long totalAdmins = users.stream()
                 .filter(user -> "ADMIN".equalsIgnoreCase(user.getRole()))
                 .count();
+        long totalSellers = users.stream()
+                .filter(user -> "SELLER".equalsIgnoreCase(user.getRole()))
+                .count();
         long totalCustomers = users.stream()
-                .filter(user -> !"ADMIN".equalsIgnoreCase(user.getRole()))
+                .filter(user -> "CUSTOMER".equalsIgnoreCase(user.getRole()))
                 .count();
 
-        return new UserSummary(users.size(), totalAdmins, totalCustomers);
+        return new UserSummary(users.size(), totalAdmins, totalCustomers, totalSellers);
     }
 
     private User hidePassword(User user) {

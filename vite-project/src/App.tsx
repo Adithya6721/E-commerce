@@ -7,7 +7,6 @@ import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import ProductDetail from "./pages/ProductDetail";
-import SellerApply from "./pages/SellerApply";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import AdminLayout from "./components/admin/AdminLayout";
@@ -74,14 +73,6 @@ function App() {
           element={
             <ProtectedRoute>
               <OrderConfirmation />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/seller/apply"
-          element={
-            <ProtectedRoute>
-              <SellerApply />
             </ProtectedRoute>
           }
         />

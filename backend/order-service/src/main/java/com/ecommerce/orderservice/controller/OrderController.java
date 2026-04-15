@@ -71,6 +71,32 @@ public class OrderController {
         }
     }
 
+    @PutMapping("/{id}/items/{productId}/status")
+    public ResponseEntity<?> updateItemStatus(
+            @PathVariable String id,
+            @PathVariable String productId,
+            @RequestBody StatusUpdateRequest request,
+            Authentication authentication
+    ) {
+        try {
+            OrderStatus newStatus = OrderStatus.valueOf(request.getStatus());
+            String changedBy = authentication.getName();
+            Order updated = service.updateOrderItemStatus(
+                id, 
+                productId, 
+                newStatus, 
+                request.getTrackingId(), 
+                request.getCourierName(), 
+                changedBy
+            );
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body("Invalid status: " + request.getStatus());
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderById(
             @PathVariable String id,

@@ -9,4 +9,5 @@ public class UserSummary {
     private long totalUsers;
     private long totalAdmins;
     private long totalCustomers;
+    private long totalSellers;
 }

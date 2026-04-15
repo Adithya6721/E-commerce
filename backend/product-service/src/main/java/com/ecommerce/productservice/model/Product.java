@@ -21,5 +21,6 @@ public class Product {
     private String category;
     private String image;
     private String sellerId;
+    private double originalPrice;
     private double averageRating;
 }

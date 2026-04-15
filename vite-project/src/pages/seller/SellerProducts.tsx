@@ -16,6 +16,7 @@ export default function SellerProducts() {
     name: "",
     description: "",
     price: "",
+    originalPrice: "",
     stock: "",
     category: "",
     image: "",
@@ -46,6 +47,7 @@ export default function SellerProducts() {
         name: product.name,
         description: product.description || "",
         price: product.price.toString(),
+        originalPrice: product.originalPrice?.toString() || "",
         stock: product.stock.toString(),
         category: product.category,
         image: product.image || "",
@@ -56,6 +58,7 @@ export default function SellerProducts() {
         name: "",
         description: "",
         price: "",
+        originalPrice: "",
         stock: "",
         category: "",
         image: "",
@@ -96,6 +99,7 @@ export default function SellerProducts() {
       name: form.name,
       description: form.description,
       price: Number(form.price),
+      originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
       stock: Number(form.stock),
       category: form.category,
       image: form.image,
@@ -285,7 +289,7 @@ export default function SellerProducts() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Price (Rs)</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Selling Price (Rs)</label>
                     <input
                       required
                       type="number"
@@ -294,6 +298,18 @@ export default function SellerProducts() {
                       onChange={(e) => setForm({ ...form, price: e.target.value })}
                       className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:bg-white"
                       placeholder="149999"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Original Price (optional)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.originalPrice}
+                      onChange={(e) => setForm({ ...form, originalPrice: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:bg-white"
+                      placeholder="160000"
                     />
                   </div>
 

@@ -15,4 +15,9 @@ public class OrderItem {
     private String image;
     private String category;
     private String sellerId;
+    
+    // Item-level Fulfillment fields
+    private OrderStatus itemStatus;
+    private String trackingId;
+    private String courierName;
 }

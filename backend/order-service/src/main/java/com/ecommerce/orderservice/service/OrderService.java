@@ -37,6 +37,7 @@ public class OrderService {
         try {
             for (OrderItem item : request.getItems()) {
                 decrementStock(item.getProductId(), item.getQuantity(), jwtToken);
+                item.setItemStatus(OrderStatus.PLACED);
                 decrementedItems.add(item);
             }
         } catch (Exception ex) {
@@ -95,6 +96,33 @@ public class OrderService {
         order.setStatus(newStatus);
         order.getStatusHistory().add(
                 new StatusHistoryEntry(newStatus, Instant.now(), changedBy)
+        );
+
+        return repository.save(order);
+    }
+
+    public Order updateOrderItemStatus(String orderId, String productId, OrderStatus newStatus, String trackingId, String courierName, String changedBy) {
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+
+        boolean updated = false;
+        for (OrderItem item : order.getItems()) {
+            if (item.getProductId().equals(productId)) {
+                item.setItemStatus(newStatus);
+                if (trackingId != null) item.setTrackingId(trackingId);
+                if (courierName != null) item.setCourierName(courierName);
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            throw new RuntimeException("Item not found in order");
+        }
+
+        // Add history entry indicating item status change
+        order.getStatusHistory().add(
+                new StatusHistoryEntry(newStatus, Instant.now(), changedBy + " (Item: " + productId + ")")
         );
 
         return repository.save(order);

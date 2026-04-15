@@ -5,10 +5,11 @@ import {
   AdminPanel,
   formatApiError,
 } from "@/components/admin/AdminUi";
-import { getPendingSellerProfiles, verifySeller, type SellerProfile } from "@/services/sellerService";
+import { getPendingSellerProfiles, getAllSellerProfiles, verifySeller, type SellerProfile } from "@/services/sellerService";
 
 export default function AdminSellersPage() {
   const [applications, setApplications] = useState<SellerProfile[]>([]);
+  const [allSellers, setAllSellers] = useState<SellerProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionId, setActionId] = useState<string | null>(null);
@@ -17,8 +18,11 @@ export default function AdminSellersPage() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const data = await getPendingSellerProfiles();
-      setApplications(data);
+      const pendingData = await getPendingSellerProfiles();
+      setApplications(pendingData);
+      
+      const allData = await getAllSellerProfiles();
+      setAllSellers(allData.filter(s => s.verificationStatus === "VERIFIED"));
     } catch (error) {
       setLoadError(formatApiError(error));
     } finally {
@@ -124,6 +128,49 @@ export default function AdminSellersPage() {
                     </button>
                   </div>
 
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </AdminPanel>
+
+      <AdminPanel title="All Verified Sellers">
+        {isLoading ? (
+          <p className="text-sm text-slate-500">Loading sellers...</p>
+        ) : allSellers.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-slate-200 p-12 text-center bg-white">
+            <Building className="mx-auto h-12 w-12 text-slate-300 mb-4" />
+            <h3 className="text-lg font-bold text-slate-900">No verified sellers</h3>
+            <p className="text-sm text-slate-500">There are no verified sellers on the platform yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {allSellers.map((seller) => (
+              <div key={seller.id} className="bg-white border text-left border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <Building className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-bold text-slate-900 truncate">{seller.businessName}</h3>
+                    <p className="text-sm font-medium text-indigo-600 truncate">@{seller.username}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 pt-4 border-t border-slate-100 mt-auto">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 uppercase tracking-wider text-xs font-semibold">Contact</span>
+                    <span className="text-slate-800 font-medium">{seller.phoneNumber}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 uppercase tracking-wider text-xs font-semibold">GSTIN</span>
+                    <span className="text-slate-700 font-mono text-xs">{seller.gstNumber}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 uppercase tracking-wider text-xs font-semibold">Verified</span>
+                    <span className="text-emerald-600 font-semibold text-xs flex items-center gap-1"><Check className="h-3 w-3" /> YES</span>
+                  </div>
                 </div>
               </div>
             ))}

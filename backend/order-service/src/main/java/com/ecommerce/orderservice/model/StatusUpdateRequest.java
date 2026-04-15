@@ -9,4 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StatusUpdateRequest {
     private String status;
+    private String trackingId;
+    private String courierName;
 }

@@ -229,8 +229,22 @@ export default function Home() {
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-500">{product.category}</p>
                   <h3 className="mt-2 text-lg font-semibold text-slate-900">{product.name}</h3>
                   <p className="mt-2 text-sm text-slate-500">{product.stock} units in stock</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-lg font-bold text-slate-900">Rs {product.price}</span>
+                  <div className="mt-4 flex items-end justify-between">
+                    <div>
+                      {product.originalPrice && product.originalPrice > product.price ? (
+                        <>
+                          <div className="flex gap-2 items-center">
+                            <span className="text-sm font-semibold text-rose-500 line-through">Rs {product.originalPrice}</span>
+                            <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                              {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                            </span>
+                          </div>
+                          <span className="block text-lg font-bold text-slate-900">Rs {product.price}</span>
+                        </>
+                      ) : (
+                        <span className="text-lg font-bold text-slate-900">Rs {product.price}</span>
+                      )}
+                    </div>
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); void handleAdd(product); }}
                       disabled={pendingProductId === product.id}
@@ -372,9 +386,23 @@ export default function Home() {
                     <p className="mt-2 line-clamp-2 text-sm text-slate-500">
                       {product.description || "A curated product from your live catalog."}
                     </p>
-                    <div className="mt-4 flex items-center justify-between text-sm">
-                      <span className="font-semibold text-slate-900">Rs {product.price}</span>
-                      <span className="text-slate-500">Stock: {product.stock}</span>
+                    <div className="mt-4 flex items-end justify-between text-sm">
+                      <div>
+                        {product.originalPrice && product.originalPrice > product.price ? (
+                          <>
+                            <div className="flex gap-2 items-center">
+                              <span className="text-xs font-medium text-rose-500 line-through">Rs {product.originalPrice}</span>
+                              <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
+                                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                              </span>
+                            </div>
+                            <span className="block font-bold text-slate-900 text-base">Rs {product.price}</span>
+                          </>
+                        ) : (
+                          <span className="font-semibold text-slate-900 text-base">Rs {product.price}</span>
+                        )}
+                      </div>
+                      <span className="text-slate-500 font-medium mb-0.5">Stock: {product.stock}</span>
                     </div>
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); void handleAdd(product); }}

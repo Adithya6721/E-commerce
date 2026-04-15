@@ -86,7 +86,7 @@ export default function AdminOverviewPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminStatCard title="Products" value={productSummary?.totalProducts ?? "Unavailable"} detail="Catalog items live" icon={<Plus className="h-5 w-5" />} />
-        <AdminStatCard title="Users" value={userSummary?.totalUsers ?? "Unavailable"} detail={userSummary ? `${userSummary.totalAdmins} admins, ${userSummary.totalCustomers} customers` : "Users API unavailable"} icon={<Users className="h-5 w-5" />} />
+        <AdminStatCard title="Users" value={userSummary?.totalUsers ?? "Unavailable"} detail={userSummary ? `${userSummary.totalAdmins} admins, ${userSummary.totalSellers} sellers, ${userSummary.totalCustomers} customers` : "Users API unavailable"} icon={<Users className="h-5 w-5" />} />
         <AdminStatCard title="Stock Units" value={productSummary?.totalUnitsInStock ?? "Unavailable"} detail={productSummary ? `${productSummary.lowStockProducts} low-stock products` : "Inventory summary unavailable"} icon={<Shield className="h-5 w-5" />} />
         <AdminStatCard title="Projected Revenue" value={cartSummary ? formatMoney(cartSummary.projectedRevenue) : "Unavailable"} detail={cartSummary ? `${cartSummary.cartsWithItems} active carts` : "Cart analytics unavailable"} icon={<TrendingUp className="h-5 w-5" />} />
       </section>

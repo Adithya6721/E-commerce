@@ -18,13 +18,12 @@ export default function Register() {
     setIsSubmitting(true);
 
     try {
-      await register(data);
-      if (isSeller) {
-        // After registering as customer, redirect to login with a hint to apply
-        navigate("/login?seller=1");
-      } else {
-        navigate("/login");
-      }
+      await register({
+        username: data.username,
+        password: data.password,
+        role: isSeller ? "SELLER" : "CUSTOMER",
+      });
+      navigate("/login");
     } catch {
       setError("Registration failed. Username might already be taken.");
     } finally {
@@ -76,8 +75,8 @@ export default function Register() {
               </button>
             </div>
             {isSeller && (
-              <p className="mt-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700">
-                You'll register as a Customer first. After login, you can apply for seller verification from your account.
+              <p className="mt-2 rounded-xl bg-purple-50 border border-purple-200 px-3 py-2 text-xs text-purple-700">
+                You'll have a dedicated seller dashboard to list and manage your products.
               </p>
             )}
           </div>
@@ -123,7 +122,7 @@ export default function Register() {
                 : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
             }`}
           >
-            {isSubmitting ? "Creating account..." : isSeller ? "Register & Become a Seller" : "Create Account"}
+            {isSubmitting ? "Creating account..." : isSeller ? "Create Seller Account" : "Create Account"}
           </button>
 
           {/* Login link */}

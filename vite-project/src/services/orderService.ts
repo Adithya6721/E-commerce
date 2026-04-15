@@ -7,7 +7,10 @@ export type OrderStatus =
   | "PACKED"
   | "SHIPPED"
   | "DELIVERED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "RETURN_REQUESTED"
+  | "RETURN_REJECTED"
+  | "RETURN_APPROVED";
 
 export interface OrderItem {
   productId: string;
@@ -17,6 +20,9 @@ export interface OrderItem {
   image: string;
   category: string;
   sellerId: string;
+  itemStatus?: OrderStatus;
+  trackingId?: string;
+  courierName?: string;
 }
 
 export interface ShippingDetails {
@@ -84,5 +90,20 @@ export const updateOrderStatus = async (
   status: OrderStatus
 ): Promise<OrderRecord> => {
   const res = await api.put(`${API_BASE_URLS.order}/orders/${orderId}/status`, { status });
+  return res.data;
+};
+
+export const updateOrderItemStatus = async (
+  orderId: string,
+  productId: string,
+  status: OrderStatus,
+  trackingId?: string,
+  courierName?: string
+): Promise<OrderRecord> => {
+  const res = await api.put(`${API_BASE_URLS.order}/orders/${orderId}/items/${productId}/status`, { 
+    status,
+    trackingId,
+    courierName
+  });
   return res.data;
 };

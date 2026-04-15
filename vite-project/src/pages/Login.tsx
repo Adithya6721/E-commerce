@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -7,8 +7,6 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const isSellerHint = searchParams.get("seller") === "1";
   const { login } = useAuth();
 
   const handleChange =
@@ -26,13 +24,9 @@ export default function Login() {
       if (auth.role === "ADMIN") {
         navigate("/admin");
       } else if (auth.role === "SELLER") {
-        navigate("/"); // We will redirect this to seller dashboard later
+        navigate("/seller");
       } else {
-        if (isSellerHint) {
-          navigate("/seller/apply");
-        } else {
-          navigate("/");
-        }
+        navigate("/");
       }
     } catch {
       setError("Login failed. Please check your username and password.");
@@ -44,17 +38,11 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        
+
         {/* Title */}
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Welcome Back 👋
         </h2>
-
-        {isSellerHint && (
-          <div className="mb-6 rounded-xl bg-purple-50 border border-purple-200 px-4 py-3 text-sm text-purple-700">
-            Account created! Please log in to complete your seller application.
-          </div>
-        )}
 
         {/* Username */}
         <div className="mb-4">

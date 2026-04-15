@@ -234,10 +234,26 @@ export default function ProductDetail() {
             </p>
 
             <div className="mt-6 flex items-end gap-4">
-              <span className="text-4xl font-bold text-slate-900">
-                Rs {product.price}
-              </span>
-              <span className={`text-sm font-semibold ${stockColor}`}>
+              <div>
+                {product.originalPrice && product.originalPrice > product.price ? (
+                  <>
+                    <div className="flex gap-2 items-center mb-1">
+                      <span className="text-lg font-semibold text-rose-500 line-through">Rs {product.originalPrice}</span>
+                      <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                        {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                      </span>
+                    </div>
+                    <span className="text-4xl font-bold text-slate-900">
+                      Rs {product.price}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-4xl font-bold text-slate-900">
+                    Rs {product.price}
+                  </span>
+                )}
+              </div>
+              <span className={`text-sm font-semibold pb-1 ${stockColor}`}>
                 {stockLabel}
               </span>
             </div>
@@ -341,11 +357,27 @@ export default function ProductDetail() {
                       {related.description ||
                         "A curated product from your live catalog."}
                     </p>
-                    <div className="mt-4 flex items-center justify-between text-sm">
-                      <span className="font-semibold text-slate-900">
-                        Rs {related.price}
-                      </span>
-                      <span className="text-slate-500">
+                    <div className="mt-4 flex items-end justify-between text-sm">
+                      <div>
+                        {related.originalPrice && related.originalPrice > related.price ? (
+                          <>
+                            <div className="flex gap-1 items-center">
+                              <span className="text-xs font-medium text-rose-500 line-through">Rs {related.originalPrice}</span>
+                              <span className="rounded bg-emerald-100 px-1 py-0.5 text-[9px] font-bold text-emerald-700">
+                                {Math.round(((related.originalPrice - related.price) / related.originalPrice) * 100)}%
+                              </span>
+                            </div>
+                            <span className="block font-bold text-slate-900 text-base">
+                              Rs {related.price}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="font-semibold text-slate-900 text-base">
+                            Rs {related.price}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-slate-500 font-medium mb-0.5">
                         Stock: {related.stock}
                       </span>
                     </div>

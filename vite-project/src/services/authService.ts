@@ -6,6 +6,12 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface RegisterPayload {
+  username: string;
+  password: string;
+  role: string;
+}
+
 interface AuthResponse {
   token: string;
   username: string;
@@ -17,7 +23,7 @@ export const login = async (data: LoginPayload): Promise<AuthResponse> => {
   return res.data;
 };
 
-export const register = async (data: LoginPayload) => {
+export const register = async (data: RegisterPayload) => {
   const res = await api.post(`${API_BASE_URLS.user}/users`, data);
   return res.data;
 };
