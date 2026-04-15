@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShieldAlert, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   AdminPageHeader,
   AdminPanel,

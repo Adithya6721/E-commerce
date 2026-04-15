@@ -3,8 +3,7 @@ import { PackageSearch, Calendar, IndianRupee } from "lucide-react";
 import {
   AdminPageHeader,
   AdminPanel,
-  formatApiError,
-  formatMoney
+  formatApiError
 } from "@/components/admin/AdminUi";
 import { getAllOrders, type OrderRecord } from "@/services/orderService";
 

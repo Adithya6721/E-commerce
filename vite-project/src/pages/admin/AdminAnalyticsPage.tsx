@@ -132,7 +132,7 @@ export default function AdminAnalyticsPage() {
                   <Tooltip 
                     cursor={{ fill: '#f8fafc' }}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    formatter={(value: number) => [`Rs ${value.toLocaleString()}`, 'Revenue']}
+                    formatter={(value: any) => [`Rs ${Number(value).toLocaleString()}`, 'Revenue']}
                   />
                   <Bar dataKey="revenue" fill="#4f46e5" radius={[6, 6, 0, 0]} />
                 </BarChart>
@@ -165,7 +165,7 @@ export default function AdminAnalyticsPage() {
                   </Pie>
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    formatter={(value: number) => [`Rs ${value.toLocaleString()}`, 'Revenue']}
+                    formatter={(value: any) => [`Rs ${Number(value).toLocaleString()}`, 'Revenue']}
                   />
                 </PieChart>
               </ResponsiveContainer>
