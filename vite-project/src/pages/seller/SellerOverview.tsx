@@ -73,7 +73,7 @@ const DonutChart = ({ value, color = "#3b82f6" }: any) => {
 };
 
 const GaugeChart = ({ value }: any) => {
-  const r = 36, cx = 44, cy = 44, stroke = 10;
+  const r = 36, stroke = 10;
   const circ = Math.PI * r;
   const dash = (value / 100) * circ;
   return (
