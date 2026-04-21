@@ -4,10 +4,6 @@ developer prespective - ui features
 
 the landing page has to be made dynamic 
 
-three type of users - admin - central head - he should not have the products page in his account - flow not done
-
-the next one is the seller page - he or she the seller has to be verified and then can sell their product see their revenue
-
 a separate my orders page , wishlist , order tracking facilities 
 
 the user has to be notified that he placed the order via gmail or message - pending 
@@ -17,6 +13,15 @@ payment intergration in teh app
 in add the products page like there can be mechanisms like for the category selection there can be drop down of the already existing available categories or the new category addition ,
 
 when the seller needs to add the product then he can add an image not the url because it would be difficult for him to add the url ryt because he has to host it and then add - instead what can we like do is we can ask him to take specific image like the resolution or something and then size because to avoid bad images in our website 
+
+important to stand out - add an ai agent to shop filter , pick etc - an agentic ai system - build an internal agent that helps the user to book the product that he or she wants 
+
+
+
+
+
+
+
 
 
 
