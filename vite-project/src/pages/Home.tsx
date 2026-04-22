@@ -5,6 +5,8 @@ import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { addToCart } from "../services/cartService";
 import { getProducts, type Product } from "../services/productService";
+import { isInWishlist, toggleWishlist, WISHLIST_UPDATED_EVENT } from "../services/wishlistService";
+import { Heart } from "lucide-react";
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "stock-desc";
 
@@ -19,6 +21,8 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"success" | "error">("success");
   const [pendingProductId, setPendingProductId] = useState<string | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [wishlistCache, setWishlistCache] = useState<Record<string, boolean>>({});
   const timeoutRef = useRef<number | null>(null);
   const { username } = useAuth();
 
@@ -42,7 +46,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const updateWishlist = () => {
+      // Just force a re-render or sync complex state if needed. Easiest is to update a timestamp or similar, but recalculating isInWishlist is fast.
+      setWishlistCache({}); // clear cache to force updates
+    };
+    window.addEventListener(WISHLIST_UPDATED_EVENT, updateWishlist);
+
     return () => {
+      window.removeEventListener(WISHLIST_UPDATED_EVENT, updateWishlist);
       if (timeoutRef.current) {
         window.clearTimeout(timeoutRef.current);
       }
@@ -79,7 +90,15 @@ export default function Home() {
       .slice(0, 4);
   }, [products]);
 
-  const featuredProduct = trendingProducts[0];
+  const featuredProduct = trendingProducts[carouselIndex % Math.max(1, trendingProducts.length)];
+
+  useEffect(() => {
+    if (trendingProducts.length <= 1) return;
+    const interval = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % trendingProducts.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [trendingProducts.length]);
 
   const filteredProducts = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -144,59 +163,65 @@ export default function Home() {
           </div>
         )}
 
-        <section className="overflow-hidden rounded-[2.5rem] bg-slate-950 text-white shadow-[0_30px_80px_rgba(15,23,42,0.2)]">
+        <section className="overflow-hidden rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100 text-slate-900 shadow-xl shadow-indigo-100/50">
           <div className="grid gap-10 px-6 py-10 sm:px-8 lg:grid-cols-[1.2fr_0.8fr] lg:px-10 lg:py-14">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.35em] text-amber-300">
+            <div className="flex flex-col justify-center">
+              <div className="inline-flex max-w-fit items-center gap-2 rounded-full border border-indigo-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-indigo-600 shadow-sm">
                 <Sparkles className="h-4 w-4" />
                 Trending storefront
               </div>
-              <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                Discover live product collections with smarter filters and trending picks.
+              <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl leading-tight">
+                Discover live product collections with smarter filters.
               </h1>
-              <p className="mt-4 max-w-2xl text-base text-slate-300 sm:text-lg">
+              <p className="mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
                 Browse dynamic categories, track stock-sensitive trends, and shop a cleaner catalog experience built from your real backend data.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white">
-                  <Flame className="h-4 w-4 text-amber-300" />
+                <div className="inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+                  <Flame className="h-4 w-4 text-rose-500" />
                   {trendingProducts.length} trending picks
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white">
-                  <Sparkles className="h-4 w-4 text-cyan-300" />
+                <div className="inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+                  <Sparkles className="h-4 w-4 text-indigo-500" />
                   {categories.length - 1} live categories
                 </div>
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-white/10 p-5 backdrop-blur">
+            <div className="relative rounded-[2rem] border border-white bg-white p-5 shadow-2xl shadow-indigo-200/40">
               {featuredProduct ? (
-                <>
-                  <p className="text-xs uppercase tracking-[0.28em] text-amber-300">Featured now</p>
-                  <img
-                    src={featuredProduct.image}
-                    alt={featuredProduct.name}
-                    className="mt-4 h-56 w-full rounded-[1.5rem] object-cover"
-                  />
-                  <div className="mt-5 flex items-start justify-between gap-4">
+                <div className="group animate-in fade-in slide-in-from-right-4 duration-700 block">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-500">Featured now</p>
+                    <div className="flex gap-1">
+                      {trendingProducts.map((_, i) => (
+                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === carouselIndex ? 'w-4 bg-indigo-600' : 'w-1.5 bg-slate-200'}`} />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative mt-4 overflow-hidden rounded-[1.5rem] bg-slate-50">
+                    <img
+                      src={featuredProduct.image}
+                      alt={featuredProduct.name}
+                      className="h-64 w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="mt-5 flex items-start justify-between gap-4 px-1">
                     <div>
-                      <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-                        {featuredProduct.category}
-                      </p>
-                      <h2 className="mt-2 text-2xl font-semibold">{featuredProduct.name}</h2>
-                      <p className="mt-2 text-sm text-slate-300">
-                        {(featuredProduct.description || "Freshly curated product").slice(0, 90)}
+                      <h2 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{featuredProduct.name}</h2>
+                      <p className="mt-1 text-sm text-slate-500 line-clamp-1">
+                        {featuredProduct.description || "Freshly curated product"}
                       </p>
                     </div>
-                    <span className="rounded-full bg-white/15 px-4 py-2 text-sm font-semibold">
+                    <span className="rounded-full bg-indigo-50 px-4 py-2 text-sm font-bold text-indigo-700 whitespace-nowrap">
                       Rs {featuredProduct.price}
                     </span>
                   </div>
-                </>
+                </div>
               ) : (
-                <div className="flex h-full min-h-64 items-center justify-center rounded-[1.5rem] border border-dashed border-white/20 text-sm text-slate-300">
-                  Featured products will appear here once your catalog loads.
+                <div className="flex h-full min-h-64 items-center justify-center rounded-[1.5rem] border border-dashed border-slate-200 text-sm text-slate-500 bg-slate-50">
+                  Featured products will appear here.
                 </div>
               )}
             </div>
@@ -221,9 +246,25 @@ export default function Home() {
               >
                 <div className="relative">
                   <img src={product.image} alt={product.name} className="h-52 w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div className="absolute left-4 top-4 rounded-full bg-slate-950/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+                  <div className="absolute left-4 top-4 rounded-full bg-slate-900/80 backdrop-blur px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm">
                     Trending
                   </div>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const added = toggleWishlist(product.id);
+                      setWishlistCache(prev => ({...prev, [product.id]: added}));
+                      showMessage(added ? "Added to wishlist" : "Removed from wishlist", "success");
+                    }}
+                    className={`absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur transition-all ${
+                      (wishlistCache[product.id] ?? isInWishlist(product.id))
+                        ? "bg-rose-500 text-white shadow-md shadow-rose-500/20"
+                        : "bg-white/80 text-slate-400 hover:bg-rose-50 hover:text-rose-500 shadow-sm"
+                    }`}
+                  >
+                    <Heart className={`h-4 w-4 ${(wishlistCache[product.id] ?? isInWishlist(product.id)) ? "fill-current" : ""}`} />
+                  </button>
                 </div>
                 <div className="p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-500">{product.category}</p>
@@ -374,11 +415,27 @@ export default function Home() {
                         {product.category}
                       </span>
                       {product.stock <= 5 && (
-                        <span className="rounded-full bg-amber-400 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-950">
+                        <span className="rounded-full bg-amber-400 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-950 shadow-sm">
                           Few left
                         </span>
                       )}
                     </div>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const added = toggleWishlist(product.id);
+                        setWishlistCache(prev => ({...prev, [product.id]: added}));
+                        showMessage(added ? "Added to wishlist" : "Removed from wishlist", "success");
+                      }}
+                      className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur transition-all ${
+                        (wishlistCache[product.id] ?? isInWishlist(product.id))
+                          ? "bg-rose-500 text-white shadow-md shadow-rose-500/20"
+                          : "bg-white/80 text-slate-400 hover:bg-rose-50 hover:text-rose-500 shadow-sm"
+                      }`}
+                    >
+                      <Heart className={`h-4 w-4 ${(wishlistCache[product.id] ?? isInWishlist(product.id)) ? "fill-current" : ""}`} />
+                    </button>
                   </div>
 
                   <div className="px-1 pb-1 pt-4">

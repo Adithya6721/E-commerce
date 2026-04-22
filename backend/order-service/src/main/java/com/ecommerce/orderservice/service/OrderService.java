@@ -125,6 +125,45 @@ public class OrderService {
                 new StatusHistoryEntry(newStatus, Instant.now(), changedBy + " (Item: " + productId + ")")
         );
 
+        // SYNC GLOBAL ORDER STATUS
+        boolean allDelivered = true;
+        boolean anyShipped = false;
+        boolean anyPacked = false;
+        boolean anyConfirmed = false;
+
+        for (OrderItem item : order.getItems()) {
+            OrderStatus s = item.getItemStatus();
+            if (s == null) s = OrderStatus.PLACED;
+            
+            if (s != OrderStatus.DELIVERED) allDelivered = false;
+            
+            if (s == OrderStatus.SHIPPED || s == OrderStatus.DELIVERED) {
+                anyShipped = true;
+            } else if (s == OrderStatus.PACKED) {
+                anyPacked = true;
+            } else if (s == OrderStatus.CONFIRMED) {
+                anyConfirmed = true;
+            }
+        }
+
+        OrderStatus computedStatus = OrderStatus.PLACED;
+        if (allDelivered && !order.getItems().isEmpty()) {
+            computedStatus = OrderStatus.DELIVERED;
+        } else if (anyShipped) {
+            computedStatus = OrderStatus.SHIPPED;
+        } else if (anyPacked) {
+            computedStatus = OrderStatus.PACKED;
+        } else if (anyConfirmed) {
+            computedStatus = OrderStatus.CONFIRMED;
+        }
+
+        if (order.getStatus() != computedStatus) {
+            order.setStatus(computedStatus);
+            order.getStatusHistory().add(
+                    new StatusHistoryEntry(computedStatus, Instant.now(), "System (Auto-Sync)")
+            );
+        }
+
         return repository.save(order);
     }
 

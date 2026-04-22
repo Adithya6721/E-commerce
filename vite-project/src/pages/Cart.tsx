@@ -137,6 +137,10 @@ export default function Cart() {
                 const product = productsMap[item.productId];
                 const linePrice = product ? product.price * item.quantity : 0;
 
+                const deliveryDate = new Date();
+                deliveryDate.setDate(deliveryDate.getDate() + 5);
+                const deliveryString = deliveryDate.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' });
+
                 return (
                   <div
                     key={item.productId}
@@ -166,9 +170,14 @@ export default function Cart() {
                       <p className="mt-1 text-sm text-gray-500">
                         {product ? `Rs ${product.price} each` : "Fetching product details"}
                       </p>
-                      <p className="mt-2 text-sm font-medium text-gray-700">
-                        Line total: Rs {linePrice}
-                      </p>
+                      <div className="mt-2 flex flex-col md:flex-row md:items-center gap-4">
+                        <p className="text-sm font-medium text-gray-700">
+                          Line total: Rs {linePrice}
+                        </p>
+                        <p className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md w-fit">
+                          Est. Delivery: {deliveryString}
+                        </p>
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between gap-4 md:justify-end">
@@ -180,9 +189,17 @@ export default function Cart() {
                         >
                           -
                         </button>
-                        <span className="w-10 text-center text-sm font-semibold text-gray-900">
-                          {item.quantity}
-                        </span>
+                        <input
+                          type="number"
+                          value={item.quantity}
+                          min={1}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (val > 0) void changeQuantity(item.productId, val);
+                          }}
+                          disabled={busyProductId === item.productId}
+                          className="w-14 text-center text-sm font-bold text-gray-900 bg-transparent outline-none appearance-none disabled:text-gray-400"
+                        />
                         <button
                           onClick={() => void changeQuantity(item.productId, item.quantity + 1)}
                           disabled={busyProductId === item.productId}

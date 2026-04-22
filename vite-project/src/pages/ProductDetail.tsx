@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { addToCart } from "../services/cartService";
 import { getProductById, getProducts, type Product } from "../services/productService";
+import { isInWishlist, toggleWishlist } from "../services/wishlistService";
 
 export default function ProductDetail() {
   const { id = "" } = useParams();
@@ -18,6 +19,7 @@ export default function ProductDetail() {
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"success" | "error">("success");
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false);
   const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -63,6 +65,7 @@ export default function ProductDetail() {
             )
             .slice(0, 4);
           setRelatedProducts(related);
+          setInWishlist(isInWishlist(productData.id));
         }
       } catch (error) {
         if (!cancelled) {
@@ -295,8 +298,19 @@ export default function ProductDetail() {
                     : "Add to Cart"}
               </button>
 
-              <button className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500">
-                <Heart className="h-5 w-5" />
+              <button 
+                onClick={() => {
+                  const added = toggleWishlist(product.id);
+                  setInWishlist(added);
+                  showMessage(added ? "Added to wishlist." : "Removed from wishlist.", "success");
+                }}
+                className={`inline-flex h-14 w-14 items-center justify-center rounded-full border transition ${
+                  inWishlist 
+                    ? "border-rose-200 bg-rose-50 text-rose-500" 
+                    : "border-slate-200 text-slate-500 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500"
+                }`}
+              >
+                <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
               </button>
             </div>
 

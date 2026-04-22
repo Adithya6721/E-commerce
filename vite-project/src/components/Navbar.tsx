@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Package } from "lucide-react";
+import { Package, Heart } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { CART_UPDATED_EVENT, getCart } from "../services/cartService";
 
@@ -100,6 +100,13 @@ export default function Navbar() {
                     {cartCount}
                   </span>
                 )}
+              </Link>
+              <Link
+                to="/wishlist"
+                className={`flex items-center justify-center w-9 h-9 rounded-full transition-all text-rose-500 hover:bg-rose-50 ${pathname === '/wishlist' ? 'bg-rose-50 ring-2 ring-rose-100' : ''}`}
+                title="Wishlist"
+              >
+                <Heart className="h-5 w-5" />
               </Link>
             </>
           )}

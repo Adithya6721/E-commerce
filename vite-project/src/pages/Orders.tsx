@@ -142,35 +142,46 @@ export default function Orders() {
 
                   {/* Order tracking timeline stepper */}
                   {!isCancelled && (
-                    <div className="mt-6 overflow-x-auto">
-                      <div className="flex min-w-[500px] items-center">
+                    <div className="mt-8 overflow-x-auto pb-4">
+                      <div className="flex min-w-[600px] items-center">
                         {STATUS_STEPS.map((step, index) => {
                           const isCompleted = index <= currentStepIndex;
                           const isActive = index === currentStepIndex;
+                          
+                          const estDate = new Date(order.createdAt);
+                          const daysToAdd = [0, 1, 2, 4, 6];
+                          estDate.setDate(estDate.getDate() + daysToAdd[index]);
+                          const estDateString = estDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
                           return (
                             <div key={step} className="flex flex-1 items-center">
-                              <div className="flex flex-col items-center">
+                              <div className="flex flex-col items-center flex-shrink-0 w-20">
                                 <div
-                                  className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold shadow-sm transition-all duration-500 z-10 relative ${
                                     isActive
-                                      ? "bg-indigo-600 text-white ring-4 ring-indigo-100 scale-110"
+                                      ? "bg-indigo-600 text-white ring-4 ring-indigo-50 scale-110"
                                       : isCompleted
                                         ? "bg-emerald-500 text-white"
-                                        : "bg-slate-100 text-slate-400"
+                                        : "bg-white border-2 border-slate-200 text-slate-300"
                                   }`}
                                 >
                                   {isCompleted && !isActive ? "✓" : index + 1}
                                 </div>
-                                <span className={`mt-2 text-[10px] font-semibold uppercase tracking-wider text-center ${
-                                  isActive ? "text-indigo-600" : isCompleted ? "text-slate-700" : "text-slate-400"
+                                <span className={`mt-3 text-[10px] font-bold uppercase tracking-wider text-center ${
+                                  isActive ? "text-indigo-600" : isCompleted ? "text-emerald-600" : "text-slate-400"
                                 }`}>
                                   {step}
                                 </span>
+                                <span className="mt-1 text-[10px] font-medium text-slate-400">
+                                  {isCompleted && !isActive ? "Done" : `Est: ${estDateString}`}
+                                </span>
                               </div>
                               {index < STATUS_STEPS.length - 1 && (
-                                <div className={`mx-1 h-0.5 flex-1 rounded-full transition-all ${
-                                  index < currentStepIndex ? "bg-emerald-400" : "bg-slate-200"
-                                }`} />
+                                <div className="mx-2 h-1.5 flex-1 rounded-full bg-slate-100 overflow-hidden -ml-2 -mr-2 mt-[-24px]">
+                                  <div 
+                                    className={`h-full bg-emerald-400 transition-all duration-1000 ease-in-out ${index < currentStepIndex ? "w-full" : "w-0"}`} 
+                                  />
+                                </div>
                               )}
                             </div>
                           );
