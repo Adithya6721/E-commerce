@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Info } from "lucide-react";
 import {
   AdminPageHeader,
   AdminPanel,
@@ -14,11 +14,55 @@ import {
   type Product,
 } from "@/services/productService";
 
+const MOCK_PRODUCTS: Product[] = [
+  {
+    id: "mock-1", name: "Premium Wireless Headphones", price: 2499, originalPrice: 3999,
+    stock: 45, category: "Electronics", sellerId: "seller_anita",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop",
+  },
+  {
+    id: "mock-2", name: "Organic Cotton T-Shirt", price: 899, originalPrice: 1299,
+    stock: 120, category: "Fashion", sellerId: "seller_priya",
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100&h=100&fit=crop",
+  },
+  {
+    id: "mock-3", name: "Smart Fitness Watch", price: 3499, originalPrice: 4999,
+    stock: 28, category: "Electronics", sellerId: "seller_anita",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop",
+  },
+  {
+    id: "mock-4", name: "Artisan Coffee Beans (500g)", price: 649,
+    stock: 200, category: "Food & Beverages", sellerId: "seller_vikram",
+    image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=100&h=100&fit=crop",
+  },
+  {
+    id: "mock-5", name: "Leather Messenger Bag", price: 4299, originalPrice: 5999,
+    stock: 15, category: "Fashion", sellerId: "seller_priya",
+    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop",
+  },
+  {
+    id: "mock-6", name: "Bluetooth Portable Speaker", price: 1799, originalPrice: 2499,
+    stock: 62, category: "Electronics", sellerId: "seller_anita",
+    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=100&h=100&fit=crop",
+  },
+  {
+    id: "mock-7", name: "Ceramic Plant Pot Set", price: 1199,
+    stock: 85, category: "Home & Garden", sellerId: "seller_priya",
+    image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=100&h=100&fit=crop",
+  },
+  {
+    id: "mock-8", name: "Yoga Mat Premium", price: 1499, originalPrice: 1999,
+    stock: 3, category: "Sports", sellerId: "seller_vikram",
+    image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=100&h=100&fit=crop",
+  },
+];
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; tone: ToastTone } | null>(null);
+  const [isUsingMock, setIsUsingMock] = useState(false);
 
   const showToast = (message: string, tone: ToastTone) => {
     setToast({ message, tone });
@@ -30,10 +74,19 @@ export default function AdminProductsPage() {
   const loadProductsPage = async () => {
     setIsLoading(true);
     setLoadError(null);
+    setIsUsingMock(false);
     try {
       const productsData = await getProducts();
-      setProducts(productsData);
+      if (productsData.length === 0) {
+        setProducts(MOCK_PRODUCTS);
+        setIsUsingMock(true);
+      } else {
+        setProducts(productsData);
+      }
     } catch (error) {
+      console.warn("Product API unavailable, using demo data:", error);
+      setProducts(MOCK_PRODUCTS);
+      setIsUsingMock(true);
       setLoadError(formatApiError(error));
     } finally {
       setIsLoading(false);
@@ -45,6 +98,10 @@ export default function AdminProductsPage() {
   }, []);
 
   const removeProduct = async (id: string, name: string) => {
+    if (id.startsWith("mock-")) {
+      showToast("Cannot delete demo products. This action works with live data.", "error");
+      return;
+    }
     if (!confirm(`Are you sure you want to permanently delete "${name}"? This action cannot be undone.`)) return;
     
     try {
@@ -66,9 +123,12 @@ export default function AdminProductsPage() {
 
       <AdminToast toast={toast} />
 
-      {loadError && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-          Failed to load product catalog: {loadError}
+      {isUsingMock && (
+        <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
+          <Info className="h-4 w-4 flex-shrink-0" />
+          {loadError
+            ? `Backend unavailable (${loadError}). Showing demo catalog to preview UI layout.`
+            : "No products in the database yet. Showing demo catalog to preview UI layout."}
         </div>
       )}
 

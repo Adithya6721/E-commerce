@@ -40,6 +40,7 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -55,8 +56,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Public: anyone can browse products
+                        .requestMatchers(HttpMethod.GET, "/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/{id}").permitAll()
+                        // Admin-only endpoints
                         .requestMatchers("/products/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/products/**").hasAnyRole("ADMIN", "CUSTOMER", "SELLER")
+                        // Protected write operations
                         .requestMatchers(HttpMethod.PUT, "/products/*/stock").hasAnyRole("ADMIN", "SELLER", "CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "/products/**").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "SELLER")

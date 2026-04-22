@@ -8,6 +8,87 @@ import { getProducts, type Product } from "../services/productService";
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "stock-desc";
 
+const MOCK_PRODUCTS: Product[] = [
+  {
+    id: "mock-1",
+    name: "Premium Wireless Headphones",
+    description: "Active noise cancellation with 30-hour battery life. Crystal clear audio for music and calls.",
+    price: 2499,
+    originalPrice: 3999,
+    stock: 45,
+    category: "Electronics",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
+  },
+  {
+    id: "mock-2",
+    name: "Organic Cotton T-Shirt",
+    description: "Sustainably sourced, premium comfort. Available in multiple colors and sizes.",
+    price: 899,
+    originalPrice: 1299,
+    stock: 120,
+    category: "Fashion",
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop",
+  },
+  {
+    id: "mock-3",
+    name: "Smart Fitness Watch",
+    description: "Track heart rate, sleep, steps and more. Water-resistant with 7-day battery.",
+    price: 3499,
+    originalPrice: 4999,
+    stock: 28,
+    category: "Electronics",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
+  },
+  {
+    id: "mock-4",
+    name: "Artisan Coffee Beans (500g)",
+    description: "Single-origin, medium roast. Ethically sourced from Colombian highlands.",
+    price: 649,
+    stock: 200,
+    category: "Food & Beverages",
+    image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop",
+  },
+  {
+    id: "mock-5",
+    name: "Leather Messenger Bag",
+    description: "Handcrafted genuine leather with padded laptop compartment. Classic vintage style.",
+    price: 4299,
+    originalPrice: 5999,
+    stock: 15,
+    category: "Fashion",
+    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=300&fit=crop",
+  },
+  {
+    id: "mock-6",
+    name: "Bluetooth Portable Speaker",
+    description: "360° surround sound, waterproof IPX7 rated. 12 hours of playtime.",
+    price: 1799,
+    originalPrice: 2499,
+    stock: 62,
+    category: "Electronics",
+    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop",
+  },
+  {
+    id: "mock-7",
+    name: "Ceramic Plant Pot Set",
+    description: "Modern matte finish. Set of 3 pots in different sizes, perfect for indoor plants.",
+    price: 1199,
+    stock: 85,
+    category: "Home & Garden",
+    image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=300&fit=crop",
+  },
+  {
+    id: "mock-8",
+    name: "Yoga Mat Premium",
+    description: "Non-slip, eco-friendly TPE material. 6mm thickness for maximum comfort.",
+    price: 1499,
+    originalPrice: 1999,
+    stock: 3,
+    category: "Sports",
+    image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=300&fit=crop",
+  },
+];
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,14 +109,16 @@ export default function Home() {
       setLoadError(null);
       try {
         const data = await getProducts();
-        setProducts(data);
-        const highestPrice = data.reduce((max, product) => Math.max(max, product.price), 0);
-        setMaxPrice(Math.max(highestPrice, 5000));
+        setProducts(data.length > 0 ? data : MOCK_PRODUCTS);
       } catch (error) {
-        setLoadError(error instanceof Error ? error.message : "Could not load products.");
-      } finally {
-        setIsLoading(false);
+        console.warn("Product API unavailable, using demo catalog:", error);
+        setProducts(MOCK_PRODUCTS);
       }
+      const highestPrice = products.length > 0
+        ? products.reduce((max, product) => Math.max(max, product.price), 0)
+        : MOCK_PRODUCTS.reduce((max, p) => Math.max(max, p.price), 0);
+      setMaxPrice(Math.max(highestPrice, 5000));
+      setIsLoading(false);
     };
 
     void loadProducts();

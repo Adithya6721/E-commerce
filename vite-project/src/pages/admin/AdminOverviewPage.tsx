@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, RefreshCw, Shield, TrendingUp, Users } from "lucide-react";
+import { Plus, RefreshCw, Shield, TrendingUp, Users, Info } from "lucide-react";
 import { DemoHeroGeometric } from "@/components/ui/demo";
 import {
   AdminPageHeader,
@@ -14,6 +14,27 @@ import { getProductSummary, getProducts, type Product, type ProductSummary } fro
 import { getUserSummary, type UserSummary } from "@/services/userService";
 import { getCartSummary, type CartSummary } from "@/services/cartService";
 
+const MOCK_PRODUCT_SUMMARY: ProductSummary = {
+  totalProducts: 8,
+  totalUnitsInStock: 558,
+  lowStockProducts: 2,
+  totalInventoryValue: 128450,
+};
+
+const MOCK_CART_SUMMARY: CartSummary = {
+  totalCarts: 12,
+  cartsWithItems: 7,
+  totalItemsInCarts: 23,
+  projectedRevenue: 34560,
+};
+
+const MOCK_PRODUCTS: Product[] = [
+  { id: "m1", name: "Yoga Mat Premium", price: 1499, stock: 3, category: "Sports", image: "" },
+  { id: "m2", name: "Leather Messenger Bag", price: 4299, stock: 5, category: "Fashion", image: "" },
+  { id: "m3", name: "Bluetooth Speaker", price: 1799, stock: 62, category: "Electronics", image: "" },
+  { id: "m4", name: "Coffee Beans (500g)", price: 649, stock: 200, category: "Food", image: "" },
+];
+
 export default function AdminOverviewPage() {
   const [productSummary, setProductSummary] = useState<ProductSummary | null>(null);
   const [userSummary, setUserSummary] = useState<UserSummary | null>(null);
@@ -21,11 +42,14 @@ export default function AdminOverviewPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [statuses, setStatuses] = useState<ApiStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [usingMockFlags, setUsingMockFlags] = useState({ products: false, cart: false });
 
   const lowStockProducts = useMemo(() => products.filter((product) => product.stock <= 5), [products]);
 
   const loadOverview = async () => {
     setIsLoading(true);
+    const mockFlags = { products: false, cart: false };
+
     const results = await Promise.allSettled([
       getProductSummary(),
       getUserSummary(),
@@ -44,23 +68,36 @@ export default function AdminOverviewPage() {
 
     if (productSummaryResult.status === "fulfilled") {
       setProductSummary(productSummaryResult.value);
+    } else {
+      setProductSummary(MOCK_PRODUCT_SUMMARY);
+      mockFlags.products = true;
     }
     if (userSummaryResult.status === "fulfilled") {
       setUserSummary(userSummaryResult.value);
     }
     if (cartSummaryResult.status === "fulfilled") {
       setCartSummary(cartSummaryResult.value);
+    } else {
+      setCartSummary(MOCK_CART_SUMMARY);
+      mockFlags.cart = true;
     }
     if (productsResult.status === "fulfilled") {
-      setProducts(productsResult.value);
+      setProducts(productsResult.value.length > 0 ? productsResult.value : MOCK_PRODUCTS);
+      if (productsResult.value.length === 0) mockFlags.products = true;
+    } else {
+      setProducts(MOCK_PRODUCTS);
+      mockFlags.products = true;
     }
 
+    setUsingMockFlags(mockFlags);
     setIsLoading(false);
   };
 
   useEffect(() => {
     void loadOverview();
   }, []);
+
+  const isAnyMock = usingMockFlags.products || usingMockFlags.cart;
 
   return (
     <div className="space-y-8">
@@ -83,6 +120,13 @@ export default function AdminOverviewPage() {
           </button>
         }
       />
+
+      {isAnyMock && (
+        <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
+          <Info className="h-4 w-4 flex-shrink-0" />
+          Some stats are using demo data because the backend is unavailable. Check the status panel below.
+        </div>
+      )}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminStatCard title="Products" value={productSummary?.totalProducts ?? "Unavailable"} detail="Catalog items live" icon={<Plus className="h-5 w-5" />} />
