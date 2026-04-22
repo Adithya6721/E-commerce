@@ -13,90 +13,21 @@ import {
 } from "recharts";
 import { formatMoney, AdminPageHeader, AdminPanel } from "@/components/admin/AdminUi";
 import { getAllOrders, type OrderRecord } from "@/services/orderService";
-import { TrendingUp, Activity, RefreshCw, Info } from "lucide-react";
+import { TrendingUp, Activity, RefreshCw } from "lucide-react";
 
 const COLORS = ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6"];
-
-const MOCK_ORDERS: OrderRecord[] = [
-  {
-    id: "ord-demo-a1", userId: "customer_ravi",
-    items: [
-      { productId: "p1", name: "Premium Wireless Headphones", price: 2499, quantity: 1, image: "", category: "Electronics", sellerId: "seller_anita" },
-      { productId: "p2", name: "Organic Cotton T-Shirt", price: 899, quantity: 2, image: "", category: "Fashion", sellerId: "seller_priya" },
-    ],
-    totalAmount: 4297, status: "SHIPPED", paymentMethod: "UPI",
-    shippingDetails: { fullName: "Ravi Kumar", phone: "9876543210", address: "123 MG Road", city: "Bangalore", pincode: "560001" },
-    statusHistory: [], createdAt: new Date(Date.now() - 1 * 86400000).toISOString(), estimatedDelivery: "",
-  },
-  {
-    id: "ord-demo-a2", userId: "customer_meera",
-    items: [
-      { productId: "p3", name: "Smart Fitness Watch", price: 3499, quantity: 1, image: "", category: "Electronics", sellerId: "seller_anita" },
-    ],
-    totalAmount: 3499, status: "DELIVERED", paymentMethod: "COD",
-    shippingDetails: { fullName: "Meera Patel", phone: "9988776655", address: "45 Lake View", city: "Mumbai", pincode: "400001" },
-    statusHistory: [], createdAt: new Date(Date.now() - 2 * 86400000).toISOString(), estimatedDelivery: "",
-  },
-  {
-    id: "ord-demo-a3", userId: "customer_arjun",
-    items: [
-      { productId: "p4", name: "Artisan Coffee Beans", price: 649, quantity: 3, image: "", category: "Food & Beverages", sellerId: "seller_vikram" },
-      { productId: "p5", name: "Ceramic Plant Pot Set", price: 1199, quantity: 1, image: "", category: "Home & Garden", sellerId: "seller_priya" },
-    ],
-    totalAmount: 3146, status: "CONFIRMED", paymentMethod: "Card",
-    shippingDetails: { fullName: "Arjun Singh", phone: "9123456780", address: "78 Green Park", city: "Delhi", pincode: "110001" },
-    statusHistory: [], createdAt: new Date(Date.now() - 3 * 86400000).toISOString(), estimatedDelivery: "",
-  },
-  {
-    id: "ord-demo-a4", userId: "customer_divya",
-    items: [
-      { productId: "p6", name: "Yoga Mat Premium", price: 1499, quantity: 1, image: "", category: "Sports", sellerId: "seller_vikram" },
-      { productId: "p7", name: "Bluetooth Speaker", price: 1799, quantity: 1, image: "", category: "Electronics", sellerId: "seller_anita" },
-    ],
-    totalAmount: 3298, status: "PLACED", paymentMethod: "UPI",
-    shippingDetails: { fullName: "Divya Sharma", phone: "9876012345", address: "12 Jubilee Hills", city: "Hyderabad", pincode: "500033" },
-    statusHistory: [], createdAt: new Date(Date.now() - 0.5 * 86400000).toISOString(), estimatedDelivery: "",
-  },
-  {
-    id: "ord-demo-a5", userId: "customer_ravi",
-    items: [
-      { productId: "p8", name: "Leather Messenger Bag", price: 4299, quantity: 1, image: "", category: "Fashion", sellerId: "seller_priya" },
-    ],
-    totalAmount: 4299, status: "DELIVERED", paymentMethod: "Card",
-    shippingDetails: { fullName: "Ravi Kumar", phone: "9876543210", address: "123 MG Road", city: "Bangalore", pincode: "560001" },
-    statusHistory: [], createdAt: new Date(Date.now() - 5 * 86400000).toISOString(), estimatedDelivery: "",
-  },
-  {
-    id: "ord-demo-a6", userId: "customer_meera",
-    items: [
-      { productId: "p9", name: "Running Shoes", price: 3999, quantity: 1, image: "", category: "Sports", sellerId: "seller_vikram" },
-    ],
-    totalAmount: 3999, status: "SHIPPED", paymentMethod: "UPI",
-    shippingDetails: { fullName: "Meera Patel", phone: "9988776655", address: "45 Lake View", city: "Mumbai", pincode: "400001" },
-    statusHistory: [], createdAt: new Date(Date.now() - 4 * 86400000).toISOString(), estimatedDelivery: "",
-  },
-];
 
 export default function AdminAnalyticsPage() {
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUsingMock, setIsUsingMock] = useState(false);
 
   const loadData = async () => {
     setIsLoading(true);
-    setIsUsingMock(false);
     try {
       const data = await getAllOrders();
-      if (data.length === 0) {
-        setOrders(MOCK_ORDERS);
-        setIsUsingMock(true);
-      } else {
-        setOrders(data);
-      }
+      setOrders(data);
     } catch (err) {
-      console.warn("Order API unavailable, using demo data:", err);
-      setOrders(MOCK_ORDERS);
-      setIsUsingMock(true);
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -165,13 +96,6 @@ export default function AdminAnalyticsPage() {
           </button>
         }
       />
-
-      {isUsingMock && (
-        <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
-          <Info className="h-4 w-4 flex-shrink-0" />
-          Displaying demo analytics data. Charts will reflect live data once orders come in.
-        </div>
-      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-3xl border border-slate-200 bg-white p-8 flex items-center gap-6 shadow-sm">

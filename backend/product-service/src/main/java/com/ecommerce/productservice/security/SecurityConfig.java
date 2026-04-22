@@ -56,12 +56,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Public: anyone can browse products
-                        .requestMatchers(HttpMethod.GET, "/products").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products/{id}").permitAll()
-                        // Admin-only endpoints
                         .requestMatchers("/products/admin/**").hasRole("ADMIN")
-                        // Protected write operations
+                        .requestMatchers(HttpMethod.GET, "/products/**").hasAnyRole("ADMIN", "CUSTOMER", "SELLER")
                         .requestMatchers(HttpMethod.PUT, "/products/*/stock").hasAnyRole("ADMIN", "SELLER", "CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "/products/**").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "SELLER")

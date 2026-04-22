@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PackageSearch, Calendar, IndianRupee, Info } from "lucide-react";
+import { PackageSearch, Calendar, IndianRupee } from "lucide-react";
 import {
   AdminPageHeader,
   AdminPanel,
@@ -7,104 +7,18 @@ import {
 } from "@/components/admin/AdminUi";
 import { getAllOrders, type OrderRecord } from "@/services/orderService";
 
-const MOCK_ORDERS: OrderRecord[] = [
-  {
-    id: "ord-demo-a1b2c3d4e5f6",
-    userId: "customer_ravi",
-    items: [
-      { productId: "p1", name: "Premium Wireless Headphones", price: 2499, quantity: 1, image: "", category: "Electronics", sellerId: "seller_anita" },
-      { productId: "p2", name: "Organic Cotton T-Shirt", price: 899, quantity: 2, image: "", category: "Fashion", sellerId: "seller_priya" },
-    ],
-    totalAmount: 4297,
-    status: "SHIPPED",
-    paymentMethod: "UPI",
-    shippingDetails: { fullName: "Ravi Kumar", phone: "9876543210", address: "123 MG Road", city: "Bangalore", pincode: "560001" },
-    statusHistory: [{ status: "PLACED", timestamp: new Date(Date.now() - 3 * 86400000).toISOString(), changedBy: "system" }],
-    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-    estimatedDelivery: new Date(Date.now() + 2 * 86400000).toISOString(),
-  },
-  {
-    id: "ord-demo-f6e5d4c3b2a1",
-    userId: "customer_meera",
-    items: [
-      { productId: "p3", name: "Smart Fitness Watch", price: 3499, quantity: 1, image: "", category: "Electronics", sellerId: "seller_anita" },
-    ],
-    totalAmount: 3499,
-    status: "DELIVERED",
-    paymentMethod: "COD",
-    shippingDetails: { fullName: "Meera Patel", phone: "9988776655", address: "45 Lake View Apt", city: "Mumbai", pincode: "400001" },
-    statusHistory: [{ status: "PLACED", timestamp: new Date(Date.now() - 7 * 86400000).toISOString(), changedBy: "system" }],
-    createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
-    estimatedDelivery: new Date(Date.now() - 2 * 86400000).toISOString(),
-  },
-  {
-    id: "ord-demo-1a2b3c4d5e6f",
-    userId: "customer_arjun",
-    items: [
-      { productId: "p4", name: "Artisan Coffee Beans (500g)", price: 649, quantity: 3, image: "", category: "Food & Beverages", sellerId: "seller_vikram" },
-      { productId: "p5", name: "Ceramic Plant Pot Set", price: 1199, quantity: 1, image: "", category: "Home & Garden", sellerId: "seller_priya" },
-    ],
-    totalAmount: 3146,
-    status: "CONFIRMED",
-    paymentMethod: "Card",
-    shippingDetails: { fullName: "Arjun Singh", phone: "9123456780", address: "78 Green Park", city: "Delhi", pincode: "110001" },
-    statusHistory: [{ status: "PLACED", timestamp: new Date(Date.now() - 1 * 86400000).toISOString(), changedBy: "system" }],
-    createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-    estimatedDelivery: new Date(Date.now() + 5 * 86400000).toISOString(),
-  },
-  {
-    id: "ord-demo-6f5e4d3c2b1a",
-    userId: "customer_divya",
-    items: [
-      { productId: "p6", name: "Yoga Mat Premium", price: 1499, quantity: 1, image: "", category: "Sports", sellerId: "seller_vikram" },
-      { productId: "p7", name: "Bluetooth Portable Speaker", price: 1799, quantity: 1, image: "", category: "Electronics", sellerId: "seller_anita" },
-    ],
-    totalAmount: 3298,
-    status: "PLACED",
-    paymentMethod: "UPI",
-    shippingDetails: { fullName: "Divya Sharma", phone: "9876012345", address: "12 Jubilee Hills", city: "Hyderabad", pincode: "500033" },
-    statusHistory: [{ status: "PLACED", timestamp: new Date(Date.now() - 0.5 * 86400000).toISOString(), changedBy: "system" }],
-    createdAt: new Date(Date.now() - 0.5 * 86400000).toISOString(),
-    estimatedDelivery: new Date(Date.now() + 6 * 86400000).toISOString(),
-  },
-  {
-    id: "ord-demo-ab12cd34ef56",
-    userId: "customer_ravi",
-    items: [
-      { productId: "p8", name: "Leather Messenger Bag", price: 4299, quantity: 1, image: "", category: "Fashion", sellerId: "seller_priya" },
-    ],
-    totalAmount: 4299,
-    status: "CANCELLED",
-    paymentMethod: "Card",
-    shippingDetails: { fullName: "Ravi Kumar", phone: "9876543210", address: "123 MG Road", city: "Bangalore", pincode: "560001" },
-    statusHistory: [{ status: "PLACED", timestamp: new Date(Date.now() - 5 * 86400000).toISOString(), changedBy: "system" }],
-    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-    estimatedDelivery: new Date(Date.now() - 1 * 86400000).toISOString(),
-  },
-];
-
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [isUsingMock, setIsUsingMock] = useState(false);
 
   const loadGlobalOrders = async () => {
     setIsLoading(true);
     setLoadError(null);
-    setIsUsingMock(false);
     try {
       const data = await getAllOrders();
-      if (data.length === 0) {
-        setOrders(MOCK_ORDERS);
-        setIsUsingMock(true);
-      } else {
-        setOrders(data);
-      }
+      setOrders(data);
     } catch (error) {
-      console.warn("Order API unavailable, using demo data:", error);
-      setOrders(MOCK_ORDERS);
-      setIsUsingMock(true);
       setLoadError(formatApiError(error));
     } finally {
       setIsLoading(false);
@@ -123,12 +37,9 @@ export default function AdminOrdersPage() {
         description="Monitor every active and fulfilled order across all sellers. Admin has a read-only oversight view."
       />
 
-      {isUsingMock && (
-        <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
-          <Info className="h-4 w-4 flex-shrink-0" />
-          {loadError
-            ? `Backend unavailable (${loadError}). Showing demo data to preview UI layout.`
-            : "No orders in the database yet. Showing demo data to preview UI layout."}
+      {loadError && (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+          Failed to load orders: {loadError}
         </div>
       )}
 
