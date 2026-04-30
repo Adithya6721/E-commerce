@@ -1,18 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
-import { Lock, User, ArrowRight, ShoppingBag, Store, ShoppingCart } from "lucide-react";
+import { Lock, User, Mail, ArrowRight, ShoppingBag, Store, ShoppingCart } from "lucide-react";
 
 export default function Register() {
-  const [data, setData] = useState({ username: "", password: "" });
+  const [data, setData] = useState({ username: "", password: "", email: "" });
   const [isSeller, setIsSeller] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    if (!data.username.trim() || !data.password.trim()) {
+    if (!data.username.trim() || !data.password.trim() || !data.email.trim()) {
       setError("Please fill in all fields.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      setError("Please enter a valid email address.");
       return;
     }
     setError("");
@@ -22,6 +26,7 @@ export default function Register() {
       await register({
         username: data.username,
         password: data.password,
+        email: data.email,
         role: isSeller ? "SELLER" : "CUSTOMER",
       });
       navigate("/login");
@@ -146,6 +151,25 @@ export default function Register() {
                   className="w-full rounded-xl border border-slate-200 bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-900/5"
                 />
               </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={data.email}
+                  onChange={(e) => setData({ ...data, email: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-900/5"
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-slate-400">Used to send order confirmation emails</p>
             </div>
 
             {/* Password */}

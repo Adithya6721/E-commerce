@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, RefreshCw, Shield, TrendingUp, Users } from "lucide-react";
+import { Plus, RefreshCw, Shield, TrendingUp, Users, Lightbulb } from "lucide-react";
 import { DemoHeroGeometric } from "@/components/ui/demo";
 import {
   AdminPageHeader,
@@ -22,7 +22,7 @@ export default function AdminOverviewPage() {
   const [statuses, setStatuses] = useState<ApiStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const lowStockProducts = useMemo(() => products.filter((product) => product.stock <= 5), [products]);
+  const lowStockProducts = useMemo(() => products.filter((p) => p.stock <= 5), [products]);
 
   const loadOverview = async () => {
     setIsLoading(true);
@@ -42,25 +42,56 @@ export default function AdminOverviewPage() {
       createStatus("Catalog API", "/products", productsResult, "Products fetched."),
     ]);
 
-    if (productSummaryResult.status === "fulfilled") {
-      setProductSummary(productSummaryResult.value);
-    }
-    if (userSummaryResult.status === "fulfilled") {
-      setUserSummary(userSummaryResult.value);
-    }
-    if (cartSummaryResult.status === "fulfilled") {
-      setCartSummary(cartSummaryResult.value);
-    }
-    if (productsResult.status === "fulfilled") {
-      setProducts(productsResult.value);
-    }
+    if (productSummaryResult.status === "fulfilled") setProductSummary(productSummaryResult.value);
+    if (userSummaryResult.status === "fulfilled") setUserSummary(userSummaryResult.value);
+    if (cartSummaryResult.status === "fulfilled") setCartSummary(cartSummaryResult.value);
+    if (productsResult.status === "fulfilled") setProducts(productsResult.value);
 
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    void loadOverview();
-  }, []);
+  useEffect(() => { void loadOverview(); }, []);
+
+  // ── Live Quick Insights ──────────────────────────────────────────────────
+  const insights = useMemo(() => {
+    const tips: { text: string; tone: "info" | "warn" | "ok" }[] = [];
+
+    if (productSummary) {
+      if (productSummary.lowStockProducts > 0) {
+        tips.push({ text: `${productSummary.lowStockProducts} product${productSummary.lowStockProducts > 1 ? "s are" : " is"} running low on stock — restock soon.`, tone: "warn" });
+      } else {
+        tips.push({ text: "All products are well-stocked. Inventory looks healthy!", tone: "ok" });
+      }
+      tips.push({ text: `Catalog has ${productSummary.totalProducts} product${productSummary.totalProducts !== 1 ? "s" : ""} with ${(productSummary.totalUnitsInStock ?? 0).toLocaleString()} total units in stock.`, tone: "info" });
+    }
+
+    if (userSummary) {
+      tips.push({ text: `Platform has ${userSummary.totalUsers} registered users: ${userSummary.totalSellers} sellers and ${userSummary.totalCustomers} customers.`, tone: "info" });
+      if (userSummary.totalSellers === 0) {
+        tips.push({ text: "No sellers yet — approve seller applications in the Seller Apps section.", tone: "warn" });
+      }
+    }
+
+    if (cartSummary) {
+      tips.push({ text: `${cartSummary.cartsWithItems} active cart${cartSummary.cartsWithItems !== 1 ? "s" : ""} with projected revenue of ${formatMoney(cartSummary.projectedRevenue)}.`, tone: cartSummary.projectedRevenue > 0 ? "ok" : "info" });
+    }
+
+    const failedApis = statuses.filter(s => !s.ok);
+    if (failedApis.length > 0) {
+      tips.push({ text: `${failedApis.length} backend service${failedApis.length > 1 ? "s are" : " is"} unreachable: ${failedApis.map(s => s.label).join(", ")}.`, tone: "warn" });
+    } else if (statuses.length > 0) {
+      tips.push({ text: "All backend services are online and responding correctly.", tone: "ok" });
+    }
+
+    return tips;
+  }, [productSummary, userSummary, cartSummary, cartSummary, statuses]);
+
+  const toneStyles = {
+    info: "bg-sky-50 border-sky-100 text-sky-800",
+    warn: "bg-amber-50 border-amber-100 text-amber-800",
+    ok:   "bg-emerald-50 border-emerald-100 text-emerald-800",
+  };
+  const toneIcons = { info: "ℹ️", warn: "⚠️", ok: "✅" };
 
   return (
     <div className="space-y-8">
@@ -98,13 +129,15 @@ export default function AdminOverviewPage() {
       <section className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
         <AdminPanel title="Low Stock Watchlist">
           {isLoading ? (
-            <p className="text-sm text-slate-500">Loading inventory snapshot...</p>
+            <div className="space-y-3 mt-1">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-14 animate-pulse rounded-2xl bg-slate-100" />)}
+            </div>
           ) : lowStockProducts.length === 0 ? (
             <p className="text-sm text-slate-500">No low-stock items were returned by the backend.</p>
           ) : (
             <div className="space-y-3">
               {lowStockProducts.map((product) => (
-                <div key={product.id} className="flex items-center justify-between rounded-2xl bg-amber-50 px-4 py-3">
+                <div key={product.id} className="flex items-center justify-between rounded-2xl bg-amber-50 px-4 py-3 border border-amber-100">
                   <div>
                     <p className="font-semibold text-amber-900">{product.name}</p>
                     <p className="text-sm text-amber-700">{product.stock} units left</p>
@@ -118,31 +151,35 @@ export default function AdminOverviewPage() {
           )}
         </AdminPanel>
 
-        <AdminPanel title="Analytics Notes">
-          <div className="space-y-4 text-sm text-slate-600">
-            <p>Revenue is currently projected from active carts because the app does not yet have a completed orders pipeline.</p>
-            <p>If the cards above show zeros unexpectedly, check the backend status panel first. It now tells you whether each admin endpoint responded successfully.</p>
+        {/* Live Quick Insights — replaces dead "Analytics Notes" */}
+        <AdminPanel title="Quick Insights">
+          <div className="flex items-center gap-2 mb-4">
+            <Lightbulb className="h-4 w-4 text-amber-500" />
+            <span className="text-xs text-slate-500 font-medium">Generated from live backend data</span>
           </div>
+          {isLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 animate-pulse rounded-2xl bg-slate-100" />)}
+            </div>
+          ) : insights.length === 0 ? (
+            <p className="text-sm text-slate-500">Insights will appear once backend data loads.</p>
+          ) : (
+            <div className="space-y-3">
+              {insights.map((tip, i) => (
+                <div key={i} className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm ${toneStyles[tip.tone]}`}>
+                  <span className="text-base leading-none mt-0.5">{toneIcons[tip.tone]}</span>
+                  <span className="leading-relaxed">{tip.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </AdminPanel>
       </section>
     </div>
   );
 }
 
-function createStatus<T>(
-  label: string,
-  endpoint: string,
-  result: PromiseSettledResult<T>,
-  successDetail: string
-): ApiStatus {
-  if (result.status === "fulfilled") {
-    return { label, endpoint, ok: true, detail: successDetail };
-  }
-
-  return {
-    label,
-    endpoint,
-    ok: false,
-    detail: formatApiError(result.reason),
-  };
+function createStatus<T>(label: string, endpoint: string, result: PromiseSettledResult<T>, successDetail: string): ApiStatus {
+  if (result.status === "fulfilled") return { label, endpoint, ok: true, detail: successDetail };
+  return { label, endpoint, ok: false, detail: formatApiError(result.reason) };
 }

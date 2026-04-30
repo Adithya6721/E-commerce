@@ -20,16 +20,23 @@ public class OrderService {
     private final OrderRepository repository;
     private final RestTemplate restTemplate;
     private final String productServiceUrl;
+    private final String userServiceUrl;
 
     public OrderService(
             OrderRepository repository,
-            @Value("${product.service.url}") String productServiceUrl
+            @Value("${product.service.url}") String productServiceUrl,
+            @Value("${user.service.url}") String userServiceUrl
     ) {
         this.repository = repository;
         this.restTemplate = new RestTemplate();
         this.productServiceUrl = productServiceUrl;
+        this.userServiceUrl = userServiceUrl;
     }
 
+    /**
+     * Creates an order and returns it.
+     * The caller (OrderController) can then use lookupCustomerEmail to send confirmation.
+     */
     public Order createOrder(OrderRequest request, String authenticatedUser, String jwtToken) {
         // Decrement stock atomically via product-service for each item
         List<OrderItem> decrementedItems = new ArrayList<>();
@@ -46,7 +53,7 @@ public class OrderService {
                 try {
                     incrementStock(decremented.getProductId(), decremented.getQuantity(), jwtToken);
                 } catch (Exception rollbackEx) {
-                    // Log rollback failure silently — in production this would go to a dead letter queue
+                    // Log rollback failure silently
                 }
             }
             throw new RuntimeException("Order creation failed: " + ex.getMessage());
@@ -68,6 +75,33 @@ public class OrderService {
         order.setStatusHistory(new ArrayList<>(List.of(initialEntry)));
 
         return repository.save(order);
+    }
+
+    /**
+     * Looks up the customer's email from user-service using their JWT token.
+     * Returns empty string if not found or if email wasn't set at registration.
+     */
+    public String lookupCustomerEmail(String username, String jwtToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + jwtToken);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    userServiceUrl + "/users/email/" + username,
+                    HttpMethod.GET,
+                    entity,
+                    Map.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Object email = response.getBody().get("email");
+                return email != null ? email.toString() : "";
+            }
+        } catch (Exception e) {
+            System.err.println("[OrderService] Could not fetch customer email: " + e.getMessage());
+        }
+        return "";
     }
 
     public List<Order> getOrdersByUser(String userId) {

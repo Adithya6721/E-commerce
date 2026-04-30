@@ -1,6 +1,7 @@
 package com.ecommerce.orderservice.controller;
 
 import com.ecommerce.orderservice.model.*;
+import com.ecommerce.orderservice.service.EmailService;
 import com.ecommerce.orderservice.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,11 @@ import java.util.Optional;
 public class OrderController {
 
     private final OrderService service;
+    private final EmailService emailService;
 
-    public OrderController(OrderService service) {
+    public OrderController(OrderService service, EmailService emailService) {
         this.service = service;
+        this.emailService = emailService;
     }
 
     @PostMapping
@@ -30,6 +33,13 @@ public class OrderController {
             String username = authentication.getName();
             String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
             Order order = service.createOrder(request, username, token);
+
+            // Automatically look up the customer's email from user-service — no frontend change needed
+            String customerEmail = service.lookupCustomerEmail(username, token);
+            if (!customerEmail.isBlank()) {
+                emailService.sendOrderConfirmation(order, customerEmail);
+            }
+
             return ResponseEntity.status(HttpStatus.CREATED).body(order);
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

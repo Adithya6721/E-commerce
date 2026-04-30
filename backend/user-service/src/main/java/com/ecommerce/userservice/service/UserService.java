@@ -59,6 +59,6 @@ public class UserService {
     }
 
     private User hidePassword(User user) {
-        return new User(user.getId(), user.getUsername(), null, user.getRole());
+        return new User(user.getId(), user.getUsername(), null, user.getRole(), user.getEmail());
     }
 }

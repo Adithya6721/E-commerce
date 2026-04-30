@@ -15,4 +15,6 @@ public class OrderRequest {
     private double totalAmount;
     private String paymentMethod;
     private ShippingDetails shippingDetails;
+    /** Customer email — used for sending order confirmation. Optional. */
+    private String customerEmail;
 }

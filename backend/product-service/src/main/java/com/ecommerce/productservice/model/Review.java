@@ -1,4 +1,4 @@
-package com.ecommerce.userservice.model;
+package com.ecommerce.productservice.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,16 +6,20 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "User")
+import java.time.Instant;
+
+@Document(collection = "reviews")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Review {
 
     @Id
     private String id;
+
+    private String productId;
     private String username;
-    private String password;
-    private String role;
-    private String email;   // stored at registration, used for order emails
+    private int rating;       // 1–5
+    private String comment;
+    private Instant createdAt;
 }
