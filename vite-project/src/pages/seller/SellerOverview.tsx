@@ -121,7 +121,7 @@ const AnimatedGauge = ({ value }: { value: number }) => {
 };
 
 // ─── Stat Card with animated counter ─────────────────────────────────────────
-function StatCard({ icon, rawValue, label, sub, color, bg }: {
+function StatCard({ icon, rawValue, label, sub, color: _color, bg }: {
   icon: string; rawValue: number; label: string; sub: string; color: string; bg: string;
 }) {
   const counted = useCountUp(rawValue);

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Flame, Search, SlidersHorizontal, Sparkles, Star } from "lucide-react";
+import { Flame, Search, SlidersHorizontal, Sparkles, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";

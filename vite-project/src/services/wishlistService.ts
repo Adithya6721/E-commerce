@@ -1,4 +1,4 @@
-import {type Product } from "./productService";
+
 
 const WISHLIST_KEY = "shopapp_wishlist";
 
