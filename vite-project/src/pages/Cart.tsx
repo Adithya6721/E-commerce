@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -120,11 +121,12 @@ export default function Cart() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #fafafa 50%, #f8f0ff 100%)' }}>
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-10">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">Your Cart</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Your Cart</h2>
+        <p className="text-sm text-slate-500 mb-8">Review your items before checkout</p>
 
         {!cart || cart.items.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-6 py-20 text-center text-lg text-gray-400">
@@ -133,7 +135,8 @@ export default function Cart() {
         ) : (
           <>
             <div className="space-y-4">
-              {cart.items.map((item) => {
+              <AnimatePresence>
+              {cart.items.map((item, index) => {
                 const product = productsMap[item.productId];
                 const linePrice = product ? product.price * item.quantity : 0;
 
@@ -142,9 +145,13 @@ export default function Cart() {
                 const deliveryString = deliveryDate.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' });
 
                 return (
-                  <div
+                  <motion.div
                     key={item.productId}
-                    className="flex flex-col gap-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition hover:border-indigo-100 hover:shadow-md md:flex-row md:items-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100, height: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.08 }}
+                    className="flex flex-col gap-4 rounded-3xl border border-gray-100 bg-white/90 backdrop-blur-sm p-5 shadow-sm transition hover:border-indigo-100 hover:shadow-lg md:flex-row md:items-center"
                   >
                     <div className="h-24 w-full overflow-hidden rounded-2xl bg-gray-100 md:w-24">
                       {product ? (
@@ -217,9 +224,11 @@ export default function Cart() {
                         Remove
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 );
-              })}
+              })
+              }
+              </AnimatePresence>
             </div>
 
             <div className="mt-6 flex items-center justify-between px-6 py-5 bg-gray-50 rounded-2xl border border-gray-100">
@@ -229,12 +238,14 @@ export default function Cart() {
               </span>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/checkout")}
-              className="mt-4 w-full py-4 bg-indigo-600 text-white font-semibold rounded-2xl hover:bg-indigo-700 active:scale-95 transition-all"
+              className="btn-shimmer mt-4 w-full py-4 bg-indigo-600 text-white font-semibold rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200/50"
             >
               Proceed to Checkout
-            </button>
+            </motion.button>
           </>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { Lock, User, ArrowRight, ShoppingBag } from "lucide-react";
 
@@ -50,8 +51,27 @@ export default function Login() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
       />
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/40" />
+      {/* Dark overlay with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-black/40 to-indigo-950/50" />
+
+      {/* Floating bokeh particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: 80 + i * 40,
+              height: 80 + i * 40,
+              left: `${15 + i * 14}%`,
+              top: `${10 + (i % 3) * 30}%`,
+              background: `radial-gradient(circle, ${['rgba(99,102,241,0.15)', 'rgba(168,85,247,0.12)', 'rgba(236,72,153,0.1)', 'rgba(59,130,246,0.12)', 'rgba(99,102,241,0.1)', 'rgba(168,85,247,0.08)'][i]} 0%, transparent 70%)`,
+              animation: `bokeh-float ${8 + i * 2}s ease-in-out infinite`,
+              animationDelay: `${i * 1.2}s`,
+            }}
+          />
+        ))}
+      </div>
 
       {/* Bottom-left branding */}
       <div className="absolute bottom-0 left-0 z-10 p-8 md:p-12">
@@ -74,9 +94,14 @@ export default function Login() {
       </div>
 
       {/* Floating login card */}
-      <div className="relative z-10 w-full max-w-md mx-4">
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.23, 0.86, 0.39, 0.96] }}
+        className="relative z-10 w-full max-w-md mx-4"
+      >
         <div
-          className="rounded-3xl bg-white/95 backdrop-blur-xl p-8 md:p-10 shadow-2xl shadow-black/20"
+          className="rounded-3xl bg-white/90 backdrop-blur-2xl p-8 md:p-10 shadow-2xl shadow-black/20 border border-white/30"
           onKeyDown={handleKeyDown}
         >
           {/* Header */}
@@ -130,10 +155,12 @@ export default function Login() {
               </div>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => void handleSubmit()}
               disabled={isSubmitting}
-              className="group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-shimmer group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/25 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -149,7 +176,7 @@ export default function Login() {
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </>
               )}
-            </button>
+            </motion.button>
           </div>
 
           {/* Footer */}
@@ -160,7 +187,7 @@ export default function Login() {
             </Link>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

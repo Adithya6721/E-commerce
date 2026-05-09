@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { getMyOrders, type OrderRecord } from "../services/orderService";
@@ -73,7 +74,7 @@ export default function Orders() {
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div>
           <p className="text-sm uppercase tracking-[0.28em] text-indigo-500">My Orders</p>
-          <h1 className="mt-2 text-3xl font-semibold text-slate-900">Track your order history</h1>
+          <h1 className="mt-2 text-3xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>Track your order history</h1>
         </div>
 
         {isOffline && (
@@ -121,7 +122,13 @@ export default function Orders() {
               const isCancelled = order.status === "CANCELLED";
 
               return (
-                <article key={order.id} className="rounded-[2rem] border border-white bg-white p-6 shadow-sm">
+                <motion.article
+                  key={order.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * orders.indexOf(order) }}
+                  className="rounded-[2rem] border border-white bg-white/90 backdrop-blur-sm p-6 shadow-sm hover:shadow-lg transition-shadow duration-300"
+                >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
                       <p className="font-mono text-xs uppercase tracking-[0.24em] text-slate-400">{order.id}</p>
@@ -159,11 +166,12 @@ export default function Orders() {
                                 <div
                                   className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold shadow-sm transition-all duration-500 z-10 relative ${
                                     isActive
-                                      ? "bg-indigo-600 text-white ring-4 ring-indigo-50 scale-110"
+                                      ? "bg-indigo-600 text-white ring-4 ring-indigo-100 scale-110"
                                       : isCompleted
                                         ? "bg-emerald-500 text-white"
                                         : "bg-white border-2 border-slate-200 text-slate-300"
                                   }`}
+                                  style={isActive ? { animation: 'glow-pulse 2s ease-in-out infinite' } : undefined}
                                 >
                                   {isCompleted && !isActive ? "✓" : index + 1}
                                 </div>
@@ -213,7 +221,7 @@ export default function Orders() {
                       </div>
                     ))}
                   </div>
-                </article>
+                </motion.article>
               );
             })}
           </div>

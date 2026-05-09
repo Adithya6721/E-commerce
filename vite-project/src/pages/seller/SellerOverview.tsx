@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getProducts, type Product } from "../../services/productService";
 import { getSellerOrders, type OrderRecord } from "../../services/orderService";
+import {
+  AreaChart, Area, BarChart as RechartsBarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 // ─── Animated Counter ─────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 900) {
@@ -21,55 +25,7 @@ function useCountUp(target: number, duration = 900) {
   return value;
 }
 
-// ─── Chart Components ─────────────────────────────────────────────────────────
-const LineChart = ({ data, color = "#3b82f6", height = 60, fill = false }: any) => {
-  const max = Math.max(...data, 1);
-  const min = Math.min(...data, 0);
-  const range = max - min || 1;
-  const w = 200, h = height;
-  const pts = data.map((v: number, i: number) => [
-    (i / (data.length - 1 || 1)) * w,
-    h - ((v - min) / range) * (h - 8) - 4,
-  ]);
-  const path = pts.map((p: any, i: number) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
-  const fillPath = fill ? `${path} L${w},${h} L0,${h} Z` : null;
-  const gradId = `g-${color.replace("#", "")}`;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height }}>
-      {fill && (
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.2" />
-            <stop offset="100%" stopColor={color} stopOpacity="0" />
-          </linearGradient>
-        </defs>
-      )}
-      {fill && <path d={fillPath!} fill={`url(#${gradId})`} />}
-      <path d={path} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-};
-
-const BarChart = ({ data, color = "#3b82f6" }: any) => {
-  const max = Math.max(...data, 1);
-  return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 50 }}>
-      {data.map((v: number, i: number) => (
-        <div
-          key={i}
-          style={{
-            flex: 1,
-            background: i === data.length - 2 ? "#1d4ed8" : color,
-            height: `${(v / max) * 100}%`,
-            borderRadius: "2px 2px 0 0",
-            opacity: 0.7 + (v / max) * 0.3,
-            transition: "height 0.6s cubic-bezier(.4,0,.2,1)",
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+// Old SVG chart components removed — replaced by Recharts (AreaChart, RechartsBarChart)
 
 const AnimatedDonut = ({ value, color = "#3b82f6" }: { value: number; color?: string }) => {
   const r = 36, cx = 44, cy = 44, stroke = 10;
@@ -126,8 +82,8 @@ function StatCard({ icon, rawValue, label, sub, color: _color, bg }: {
 }) {
   const counted = useCountUp(rawValue);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "16px 20px", flex: 1, transition: "box-shadow .2s" }}>
-      <div style={{ width: 44, height: 44, borderRadius: 10, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{icon}</div>
+    <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", border: "1px solid rgba(226,232,240,0.6)", borderRadius: 16, padding: "18px 22px", flex: 1, transition: "all .3s", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+      <div style={{ width: 48, height: 48, borderRadius: 14, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{icon}</div>
       <div>
         <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 17 }}>{label.startsWith("Rs") ? `Rs ${counted.toLocaleString()}` : `${counted}${label}`}</div>
         <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{sub}</div>
@@ -240,13 +196,13 @@ export default function SellerOverview() {
   const payPct = (completedItems + pendingItems) > 0 ? (completedItems / (completedItems + pendingItems)) * 100 : 0;
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", fontFamily: "'Segoe UI', system-ui, sans-serif", background: "#f8fafc", color: "#1e293b", fontSize: 13 }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", fontFamily: "'Inter', system-ui, sans-serif", color: "#1e293b", fontSize: 13 }} className="gradient-mesh">
       <main style={{ flex: 1, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
 
         {/* Page Header */}
         <div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#0f172a" }}>Seller Analytics</div>
-          <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>Here's what's going on at your business right now</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#0f172a", fontFamily: "'Outfit', system-ui" }}>Seller Analytics</div>
+          <div style={{ fontSize: 13, color: "#64748b", marginTop: 6 }}>Here's what's going on at your business right now</div>
         </div>
 
         {/* KPI Cards */}
@@ -260,7 +216,7 @@ export default function SellerOverview() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
 
           {/* Revenue Chart */}
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20 }}>
+          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 16 }}>Total Revenue Overview</div>
@@ -283,18 +239,27 @@ export default function SellerOverview() {
                 </select>
               </div>
             </div>
-            <div style={{ position: "relative", marginTop: 24 }}>
-              <LineChart data={chartSalesData} color="#3b82f6" height={180} fill />
-              <div style={{ position: "absolute", bottom: -20, left: 0, right: 0, display: "flex", justifyContent: "space-between", color: "#94a3b8", fontSize: 11, padding: "0 4px" }}>
-                <span>{days[0]}</span>
-                <span>{days[Math.floor(days.length / 2)]}</span>
-                <span>{days[days.length - 1]}</span>
-              </div>
+            <div style={{ marginTop: 24, height: 200 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={days.map((d, i) => ({ date: d.slice(5), revenue: chartSalesData[i] }))}>
+                  <defs>
+                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }} />
+                  <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2.5} fill="url(#revGrad)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
           {/* Total Units Sold Bar */}
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, display: "flex", flexDirection: "column", gap: 16, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div>
               <div style={{ color: "#64748b", fontSize: 13, fontWeight: 500 }}>Total Units Sold</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
@@ -302,7 +267,13 @@ export default function SellerOverview() {
               </div>
               <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Across all products</div>
             </div>
-            <BarChart data={chartOrdersData} color="#93c5fd" />
+            <div style={{ height: 120 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsBarChart data={chartOrdersData.map((v, i) => ({ day: i + 1, orders: v }))}>
+                  <Bar dataKey="orders" fill="#818cf8" radius={[4, 4, 0, 0]} />
+                </RechartsBarChart>
+              </ResponsiveContainer>
+            </div>
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div style={{ width: 10, height: 10, background: "#1d4ed8", borderRadius: 3 }} />
@@ -322,7 +293,7 @@ export default function SellerOverview() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
 
           {/* Inventory Donut */}
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20 }}>
+          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Inventory Health</div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 16, marginTop: 4 }}>Current stock distribution</div>
             <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
@@ -346,7 +317,7 @@ export default function SellerOverview() {
           </div>
 
           {/* Fulfillment Gauge */}
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20 }}>
+          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Order Fulfillment</div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 16, marginTop: 4 }}>Overall platform tracking</div>
             <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
@@ -373,7 +344,7 @@ export default function SellerOverview() {
         </div>
 
         {/* Latest Sales Table */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: 20 }}>
+        <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <div>
               <div style={{ fontWeight: 700, fontSize: 16 }}>Latest Item Sales</div>

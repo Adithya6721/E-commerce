@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -207,14 +208,14 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#eef2ff_0%,#ffffff_42%,#f8fafc_100%)]">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #eef2ff 0%, #ffffff 42%, #f8fafc 100%)' }}>
       <Navbar />
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.28em] text-indigo-500">Checkout</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">Complete your payment</h1>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>Complete your payment</h1>
           </div>
           <Link
             to="/cart"
@@ -306,7 +307,7 @@ export default function Checkout() {
               </div>
             </div>
 
-            <aside className="h-fit rounded-[2rem] border border-white bg-white p-6 shadow-sm">
+            <aside className="h-fit rounded-[2rem] border border-white/60 bg-white/85 backdrop-blur-xl p-6 shadow-lg shadow-indigo-100/20">
               <h2 className="text-xl font-semibold text-slate-900">Order summary</h2>
               <div className="mt-5 space-y-4">
                 {cart.items.map((item) => {
@@ -347,13 +348,15 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => void handlePlaceOrder()}
                 disabled={isSubmitting}
-                className="mt-6 w-full rounded-full bg-indigo-600 px-5 py-4 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
+                className="btn-shimmer mt-6 w-full rounded-full bg-indigo-600 px-5 py-4 text-sm font-semibold text-white transition hover:bg-indigo-500 shadow-lg shadow-indigo-200/50 disabled:cursor-not-allowed disabled:bg-indigo-300"
               >
                 {isSubmitting ? "Placing Order..." : "Confirm Payment & Place Order"}
-              </button>
+              </motion.button>
             </aside>
           </section>
         )}

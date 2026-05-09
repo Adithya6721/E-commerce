@@ -14,6 +14,7 @@ import {
 import { formatMoney, AdminPageHeader, AdminPanel } from "@/components/admin/AdminUi";
 import { getAllOrders, type OrderRecord } from "@/services/orderService";
 import { TrendingUp, Activity, ShoppingCart, RefreshCw, TrendingDown } from "lucide-react";
+import { motion } from "framer-motion";
 
 const COLORS = ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6"];
 
@@ -46,7 +47,12 @@ function KpiCard({ icon, iconBg, iconColor, label, value, rawValue, trend, trend
   const displayValue = value.startsWith("Rs") ? `Rs ${counted.toLocaleString()}` : String(counted);
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-8 flex items-center gap-6 shadow-sm">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="rounded-3xl border border-slate-200/60 bg-white/85 backdrop-blur-sm p-8 flex items-center gap-6 shadow-sm hover:shadow-lg transition-shadow duration-300"
+    >
       <div className={`p-4 ${iconBg} ${iconColor} rounded-2xl`}>{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
@@ -58,7 +64,7 @@ function KpiCard({ icon, iconBg, iconColor, label, value, rawValue, trend, trend
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

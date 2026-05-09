@@ -65,11 +65,14 @@ export default function SellerLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex h-screen" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #f8fafc 50%, #f8f0ff 100%)' }}>
       {/* Sidebar */}
-      <aside className="w-64 border-r border-slate-200 bg-white flex flex-col">
-        <div className="flex h-16 items-center px-6 border-b border-slate-100">
-          <span className="text-xl font-bold text-indigo-600 tracking-tight">Seller Hub</span>
+      <aside className="w-64 border-r border-slate-200/60 bg-white/80 backdrop-blur-xl flex flex-col">
+        <div className="flex h-16 items-center px-6 border-b border-slate-100/60">
+          <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+            <span className="text-indigo-600">Seller</span>
+            <span className="text-slate-900"> Hub</span>
+          </span>
         </div>
 
         <div className="p-4 px-6 border-b border-slate-100">
@@ -85,10 +88,10 @@ export default function SellerLayout() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
                   isActive
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                 }`}
               >
                 <Icon className={`h-5 w-5 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
@@ -101,7 +104,7 @@ export default function SellerLayout() {
         <div className="p-4 border-t border-slate-100">
           <button
             onClick={logout}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-rose-500 transition-all duration-300 hover:bg-rose-50"
           >
             <LogOut className="h-5 w-5 text-rose-500" />
             Sign Out

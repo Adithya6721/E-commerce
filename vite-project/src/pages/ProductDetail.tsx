@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Heart, Minus, Plus, ShoppingCart, Star, Send, CheckCircle } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import AnimatedSection from "../components/ui/AnimatedSection";
 import { useAuth } from "../context/AuthContext";
 import { addToCart } from "../services/cartService";
 import { getProductById, getProducts, type Product } from "../services/productService";
@@ -239,33 +240,36 @@ export default function ProductDetail() {
 
         {/* Product main section */}
         <section className="grid gap-10 lg:grid-cols-2">
-          {/* Image */}
-          <div className="group overflow-hidden rounded-[2rem] border border-white bg-white shadow-sm">
-            <div className="relative overflow-hidden">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-[500px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute left-4 top-4 flex gap-2">
-                <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700">
-                  {product.category}
-                </span>
-                {product.stock <= 5 && product.stock > 0 && (
-                  <span className="rounded-full bg-amber-400 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-950">
-                    Few left
+          {/* Image with 3D tilt */}
+          <AnimatedSection direction="left" duration={0.8}>
+            <div className="group overflow-hidden rounded-[2rem] border border-white bg-white shadow-sm tilt-card" style={{ transformStyle: 'preserve-3d' }}>
+              <div className="relative overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="h-[500px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute left-4 top-4 flex gap-2">
+                  <span className="rounded-full bg-white/90 backdrop-blur-sm px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700 shadow-sm">
+                    {product.category}
                   </span>
-                )}
-                {product.stock === 0 && (
-                  <span className="rounded-full bg-rose-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
-                    Sold out
-                  </span>
-                )}
+                  {product.stock <= 5 && product.stock > 0 && (
+                    <span className="rounded-full bg-amber-400 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-950 shadow-sm">
+                      Few left
+                    </span>
+                  )}
+                  {product.stock === 0 && (
+                    <span className="rounded-full bg-rose-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white shadow-sm">
+                      Sold out
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </AnimatedSection>
 
           {/* Details */}
+          <AnimatedSection direction="right" delay={0.2} duration={0.8}>
           <div className="flex flex-col justify-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-500">
               {product.category}
@@ -392,13 +396,15 @@ export default function ProductDetail() {
               </div>
             </div>
           </div>
+          </AnimatedSection>
         </section>
 
         {/* ── Reviews Section ─────────────────────────────────────── */}
+        <AnimatedSection>
         <section className="mt-16">
           <div className="mb-6">
             <p className="text-sm uppercase tracking-[0.28em] text-indigo-500">Community</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900">Customer Reviews</h2>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>Customer Reviews</h2>
           </div>
 
           <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -511,6 +517,7 @@ export default function ProductDetail() {
             </div>
           </div>
         </section>
+        </AnimatedSection>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
