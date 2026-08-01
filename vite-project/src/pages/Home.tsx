@@ -222,7 +222,7 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"success" | "error">("success");
   const [pendingProductId, setPendingProductId] = useState<string | null>(null);
-  const [carouselIndex, setCarouselIndex] = useState(0);
+
   const [wishlistCache, setWishlistCache] = useState<Record<string, boolean>>({});
   const timeoutRef = useRef<number | null>(null);
   const { username } = useAuth();
@@ -277,11 +277,7 @@ export default function Home() {
     [products]
   );
 
-  useEffect(() => {
-    if (trendingProducts.length <= 1) return;
-    const id = setInterval(() => setCarouselIndex((p) => (p + 1) % trendingProducts.length), 4000);
-    return () => clearInterval(id);
-  }, [trendingProducts.length]);
+
 
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
