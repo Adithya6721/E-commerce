@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 export type ToastTone = "success" | "error";
 
@@ -44,7 +45,12 @@ export function AdminPageHeader({
   action?: ReactNode;
 }) {
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.08)] backdrop-blur">
+    <motion.section
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" } as any}
+      className="rounded-[2rem] border border-white/60 bg-white/70 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.08)] backdrop-blur-[16px]"
+    >
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.3em] text-amber-600">{eyebrow}</p>
@@ -53,7 +59,7 @@ export function AdminPageHeader({
         </div>
         {action}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -65,10 +71,15 @@ export function AdminPanel({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-[2rem] border border-white/70 bg-white p-6 shadow-sm">
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" } as any}
+      className="rounded-[2rem] border border-white/70 bg-white/70 p-6 shadow-sm backdrop-blur-[16px]"
+    >
       <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
       <div className="mt-5">{children}</div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -84,14 +95,23 @@ export function AdminStatCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-[1.75rem] border border-white/70 bg-white p-5 shadow-sm">
+    <motion.div
+      whileHover={{ y: -5, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300 } as any}
+      className="rounded-[1.75rem] border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur-[16px]"
+    >
       <div className="flex items-center justify-between">
         <p className="text-sm uppercase tracking-[0.2em] text-slate-500">{title}</p>
-        <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">{icon}</div>
+        <motion.div
+          whileHover={{ rotate: 10, scale: 1.1 }}
+          className="rounded-2xl bg-white/80 border border-slate-100 p-3 text-slate-700 shadow-sm"
+        >
+          {icon}
+        </motion.div>
       </div>
       <p className="mt-6 text-3xl font-semibold text-slate-900">{value}</p>
       <p className="mt-2 text-sm text-slate-500">{detail}</p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -181,13 +201,17 @@ export function AdminToast({
 export function StatusList({ statuses }: { statuses: ApiStatus[] }) {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {statuses.map((status) => (
-        <div
+      {statuses.map((status, i) => (
+        <motion.div
           key={status.label}
-          className={`rounded-3xl border px-4 py-4 ${
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.1 }}
+          whileHover={{ y: -3, boxShadow: "0 10px 25px rgba(0,0,0,0.05)" }}
+          className={`rounded-3xl border px-4 py-4 backdrop-blur-sm ${
             status.ok
-              ? "border-emerald-200 bg-emerald-50"
-              : "border-rose-200 bg-rose-50"
+              ? "border-emerald-200/60 bg-emerald-50/70"
+              : "border-rose-200/60 bg-rose-50/70"
           }`}
         >
           <div className="flex items-center justify-between gap-3">
@@ -195,8 +219,8 @@ export function StatusList({ statuses }: { statuses: ApiStatus[] }) {
             <span
               className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
                 status.ok
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-rose-100 text-rose-700"
+                  ? "bg-emerald-100/80 text-emerald-700"
+                  : "bg-rose-100/80 text-rose-700"
               }`}
             >
               {status.ok ? "Connected" : "Failed"}
@@ -204,7 +228,7 @@ export function StatusList({ statuses }: { statuses: ApiStatus[] }) {
           </div>
           <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">{status.endpoint}</p>
           <p className="mt-3 text-sm text-slate-600">{status.detail}</p>
-        </div>
+        </motion.div>
       ))}
     </div>
   );

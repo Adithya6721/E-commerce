@@ -51,9 +51,17 @@ function KpiCard({ icon, iconBg, iconColor, label, value, rawValue, trend, trend
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-3xl border border-slate-200/60 bg-white/85 backdrop-blur-sm p-8 flex items-center gap-6 shadow-sm hover:shadow-lg transition-shadow duration-300"
+      whileHover={{ y: -5, boxShadow: "0 20px 48px rgba(0,0,0,0.10)", scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="rounded-3xl border border-slate-200/60 bg-white/85 backdrop-blur-sm p-8 flex items-center gap-6 shadow-sm transition-all duration-300"
     >
-      <div className={`p-4 ${iconBg} ${iconColor} rounded-2xl`}>{icon}</div>
+      <motion.div
+        whileHover={{ scale: 1.15, rotate: 10 }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+        className={`p-4 ${iconBg} ${iconColor} rounded-2xl`}
+      >
+        {icon}
+      </motion.div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
         <p className="text-3xl font-bold text-slate-900">{displayValue}</p>
@@ -180,113 +188,138 @@ export default function AdminAnalyticsPage() {
 
       {/* Charts */}
       <section className="grid gap-8 lg:grid-cols-2">
-        <AdminPanel title="Revenue Timeline (Last 7 Days)">
-          <div className="h-80 mt-4">
-            {isLoading ? (
-              <div className="flex h-full items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} tickFormatter={(v) => `Rs ${Number(v).toLocaleString()}`} />
-                  <Tooltip
-                    cursor={{ fill: "#f8fafc" }}
-                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
-                    formatter={(v: any) => [`Rs ${Number(v).toLocaleString()}`, "Revenue"]}
-                  />
-                  <Bar dataKey="revenue" fill="#4f46e5" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </AdminPanel>
-
-        <AdminPanel title="Revenue by Category">
-          <div className="h-80 mt-4 flex items-center justify-center">
-            {isLoading ? (
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-            ) : categoryData.length === 0 ? (
-              <p className="text-sm text-slate-500">No category data available yet.</p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={categoryData} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value">
-                    {categoryData.map((_e, i) => <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
-                    formatter={(v: any) => [`Rs ${Number(v).toLocaleString()}`, "Revenue"]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-          {!isLoading && categoryData.length > 0 && (
-            <div className="mt-6 flex flex-wrap justify-center gap-4">
-              {categoryData.map((cat, i) => (
-                <div key={cat.name} className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-xs font-semibold text-slate-600">{cat.name}</span>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          whileHover={{ y: -5, boxShadow: "0 20px 48px rgba(0,0,0,0.10)" }}
+        >
+          <AdminPanel title="Revenue Timeline (Last 7 Days)">
+            <div className="h-80 mt-4">
+              {isLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
                 </div>
-              ))}
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={timelineData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} tickFormatter={(v) => `Rs ${Number(v).toLocaleString()}`} />
+                    <Tooltip
+                      cursor={{ fill: "#f8fafc" }}
+                      contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
+                      formatter={(v: any) => [`Rs ${Number(v).toLocaleString()}`, "Revenue"]}
+                    />
+                    <Bar dataKey="revenue" fill="#4f46e5" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
-          )}
-        </AdminPanel>
+          </AdminPanel>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          whileHover={{ y: -5, boxShadow: "0 20px 48px rgba(0,0,0,0.10)" }}
+        >
+          <AdminPanel title="Revenue by Category">
+            <div className="h-80 mt-4 flex items-center justify-center">
+              {isLoading ? (
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+              ) : categoryData.length === 0 ? (
+                <p className="text-sm text-slate-500">No category data available yet.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={categoryData} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value">
+                      {categoryData.map((_e, i) => <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
+                      formatter={(v: any) => [`Rs ${Number(v).toLocaleString()}`, "Revenue"]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            {!isLoading && categoryData.length > 0 && (
+              <div className="mt-6 flex flex-wrap justify-center gap-4">
+                {categoryData.map((cat, i) => (
+                  <div key={cat.name} className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                    <span className="text-xs font-semibold text-slate-600">{cat.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </AdminPanel>
+        </motion.div>
       </section>
 
       {/* Top Products Table */}
-      <AdminPanel title="Top Products by Revenue">
-        {isLoading ? (
-          <div className="space-y-3 mt-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-12 animate-pulse rounded-2xl bg-slate-100" />
-            ))}
-          </div>
-        ) : topProducts.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No order data available yet.</p>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm text-slate-600">
-              <thead>
-                <tr className="border-b border-slate-100 text-xs uppercase text-slate-400">
-                  <th className="pb-3 text-left font-semibold pl-2">#</th>
-                  <th className="pb-3 text-left font-semibold">Product</th>
-                  <th className="pb-3 text-right font-semibold">Units Sold</th>
-                  <th className="pb-3 text-right font-semibold pr-2">Revenue</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {topProducts.map((p, i) => {
-                  const maxRev = topProducts[0].revenue;
-                  const pct = (p.revenue / maxRev) * 100;
-                  return (
-                    <tr key={p.name} className="hover:bg-slate-50 transition-colors rounded-2xl">
-                      <td className="py-3 pl-2">
-                        <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                          i === 0 ? "bg-amber-100 text-amber-700" :
-                          i === 1 ? "bg-slate-100 text-slate-600" :
-                          i === 2 ? "bg-orange-50 text-orange-600" : "bg-slate-50 text-slate-400"
-                        }`}>{i + 1}</span>
-                      </td>
-                      <td className="py-3">
-                        <div className="font-medium text-slate-900">{p.name}</div>
-                        <div className="mt-1 h-1.5 w-full max-w-[160px] rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full rounded-full bg-indigo-400" style={{ width: `${pct}%`, transition: "width 1s cubic-bezier(.4,0,.2,1)" }} />
-                        </div>
-                      </td>
-                      <td className="py-3 text-right font-semibold">{p.units}</td>
-                      <td className="py-3 text-right font-bold text-slate-900 pr-2">{formatMoney(p.revenue)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </AdminPanel>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        whileHover={{ y: -5, boxShadow: "0 20px 48px rgba(0,0,0,0.10)" }}
+      >
+        <AdminPanel title="Top Products by Revenue">
+          {isLoading ? (
+            <div className="space-y-3 mt-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-12 animate-pulse rounded-2xl bg-slate-100" />
+              ))}
+            </div>
+          ) : topProducts.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-500">No order data available yet.</p>
+          ) : (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-sm text-slate-600">
+                <thead>
+                  <tr className="border-b border-slate-100 text-xs uppercase text-slate-400">
+                    <th className="pb-3 text-left font-semibold pl-2">#</th>
+                    <th className="pb-3 text-left font-semibold">Product</th>
+                    <th className="pb-3 text-right font-semibold">Units Sold</th>
+                    <th className="pb-3 text-right font-semibold pr-2">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {topProducts.map((p, i) => {
+                    const maxRev = topProducts[0].revenue;
+                    const pct = (p.revenue / maxRev) * 100;
+                    return (
+                      <motion.tr
+                        key={p.name}
+                        whileHover={{ backgroundColor: "#f8faff", scale: 1.01 }}
+                        className="transition-colors rounded-2xl"
+                      >
+                        <td className="py-3 pl-2">
+                          <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                            i === 0 ? "bg-amber-100 text-amber-700" :
+                            i === 1 ? "bg-slate-100 text-slate-600" :
+                            i === 2 ? "bg-orange-50 text-orange-600" : "bg-slate-50 text-slate-400"
+                          }`}>{i + 1}</span>
+                        </td>
+                        <td className="py-3">
+                          <div className="font-medium text-slate-900">{p.name}</div>
+                          <div className="mt-1 h-1.5 w-full max-w-[160px] rounded-full bg-slate-100 overflow-hidden">
+                            <div className="h-full rounded-full bg-indigo-400" style={{ width: `${pct}%`, transition: "width 1s cubic-bezier(.4,0,.2,1)" }} />
+                          </div>
+                        </td>
+                        <td className="py-3 text-right font-semibold">{p.units}</td>
+                        <td className="py-3 text-right font-bold text-slate-900 pr-2">{formatMoney(p.revenue)}</td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </AdminPanel>
+      </motion.div>
     </div>
   );
 }

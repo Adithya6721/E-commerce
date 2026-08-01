@@ -121,10 +121,14 @@ export default function Cart() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #fafafa 50%, #f8f0ff 100%)' }}>
+    <div className="relative min-h-screen bg-slate-50 overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-400/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-emerald-400/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[40%] left-[30%] w-[400px] h-[400px] rounded-full bg-purple-400/20 blur-[120px] pointer-events-none" />
+
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-10">
         <h2 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Your Cart</h2>
         <p className="text-sm text-slate-500 mb-8">Review your items before checkout</p>
 
@@ -151,9 +155,9 @@ export default function Cart() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100, height: 0, marginBottom: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.08 }}
-                    className="flex flex-col gap-4 rounded-3xl border border-gray-100 bg-white/90 backdrop-blur-sm p-5 shadow-sm transition hover:border-indigo-100 hover:shadow-lg md:flex-row md:items-center"
+                    className="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/70 backdrop-blur-[16px] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition hover:border-indigo-100 hover:shadow-lg md:flex-row md:items-center"
                   >
-                    <div className="h-24 w-full overflow-hidden rounded-2xl bg-gray-100 md:w-24">
+                    <div className="h-24 w-full overflow-hidden rounded-2xl bg-white/80 border border-slate-100 md:w-24">
                       {product ? (
                         <img
                           src={product.image}
@@ -231,7 +235,7 @@ export default function Cart() {
               </AnimatePresence>
             </div>
 
-            <div className="mt-6 flex items-center justify-between px-6 py-5 bg-gray-50 rounded-2xl border border-gray-100">
+            <div className="mt-6 flex items-center justify-between px-6 py-5 bg-white/70 backdrop-blur-[16px] rounded-2xl border border-white/60 shadow-sm">
               <span className="text-base font-semibold text-gray-700">Total</span>
               <span className="text-2xl font-bold text-indigo-600">
                 Rs {cart.totalPrice}

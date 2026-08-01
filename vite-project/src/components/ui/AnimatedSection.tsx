@@ -30,7 +30,7 @@ export default function AnimatedSection({
   return (
     <motion.div
       initial={{ opacity: 0, ...offset }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      whileInView= {{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once, margin: "-60px" }}
       transition={{
         duration,

@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import { getProducts, createProduct, updateProduct, deleteProduct, type Product } from "../../services/productService";
 import { fileToBase64 } from "../../utils/fileUtils";
 import { Plus, Edit2, Trash2, X, UploadCloud, Package } from "lucide-react";
+
+const fadeUp = (delay = 0) => ({ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, delay, ease: "easeOut" } as any });
+const glossyStyle = { background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" };
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 function SkeletonRow() {
@@ -142,25 +146,30 @@ export default function SellerProducts() {
 
       {/* Quick stat strip */}
       {!isLoading && products.length > 0 && (
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <motion.div {...fadeUp(0.1)} className="mt-5 grid grid-cols-3 gap-4">
           {[
-            { label: "In Stock", value: inStock, color: "bg-emerald-50 text-emerald-700 border-emerald-100" },
-            { label: "Low Stock (≤5)", value: lowStock, color: "bg-amber-50 text-amber-700 border-amber-100" },
-            { label: "Out of Stock", value: oos, color: "bg-rose-50 text-rose-700 border-rose-100" },
-          ].map(s => (
-            <div key={s.label} className={`rounded-2xl border px-4 py-3 flex items-center justify-between ${s.color}`}>
-              <span className="text-xs font-semibold uppercase tracking-wider">{s.label}</span>
-              <span className="text-xl font-bold">{s.value}</span>
-            </div>
+            { label: "In Stock", value: inStock, color: "text-emerald-700", bg: "bg-emerald-50/50" },
+            { label: "Low Stock (≤5)", value: lowStock, color: "text-amber-700", bg: "bg-amber-50/50" },
+            { label: "Out of Stock", value: oos, color: "text-rose-700", bg: "bg-rose-50/50" },
+          ].map((s, i) => (
+            <motion.div
+              key={s.label}
+              whileHover={{ y: -4, boxShadow: "0 10px 25px rgba(0,0,0,0.08)" }}
+              style={glossyStyle}
+              className={`flex items-center justify-between px-5 py-4 ${s.bg}`}
+            >
+              <span className={`text-xs font-semibold uppercase tracking-wider ${s.color}`}>{s.label}</span>
+              <span className={`text-2xl font-bold ${s.color}`}>{s.value}</span>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Table / Skeleton / Empty */}
       {isLoading ? (
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <motion.div {...fadeUp(0.2)} style={glossyStyle} className="mt-8 overflow-hidden">
           <table className="w-full text-left text-sm text-slate-600">
-            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
+            <thead className="border-b border-slate-200 bg-slate-50/50 text-xs uppercase text-slate-500">
               <tr>
                 <th className="px-6 py-4 font-semibold">Product</th>
                 <th className="px-6 py-4 font-semibold">Category</th>
@@ -169,24 +178,24 @@ export default function SellerProducts() {
                 <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-slate-100/50">
               {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
             </tbody>
           </table>
-        </div>
+        </motion.div>
       ) : products.length === 0 ? (
-        <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 mb-4">
+        <motion.div {...fadeUp(0.2)} style={glossyStyle} className="mt-10 flex flex-col items-center justify-center p-12 text-center border-dashed">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100/50 mb-4">
             <Package className="h-8 w-8 text-slate-400" />
           </div>
           <h2 className="text-lg font-bold text-slate-900">No products listed</h2>
           <p className="mt-1 text-sm text-slate-500 max-w-sm">Get started by adding your first product to your store catalog.</p>
-        </div>
+        </motion.div>
       ) : (
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <motion.div {...fadeUp(0.2)} style={glossyStyle} className="mt-8 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
+              <thead className="border-b border-slate-200 bg-slate-50/50 text-xs uppercase text-slate-500">
                 <tr>
                   <th className="px-6 py-4 font-semibold">Product</th>
                   <th className="px-6 py-4 font-semibold">Category</th>
@@ -195,9 +204,16 @@ export default function SellerProducts() {
                   <th className="px-6 py-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-slate-50 transition-colors">
+              <tbody className="divide-y divide-slate-100/50">
+                {products.map((product, i) => (
+                  <motion.tr
+                    key={product.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + i * 0.05 }}
+                    whileHover={{ backgroundColor: "rgba(248, 250, 252, 0.6)" }}
+                    className="transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
@@ -212,7 +228,7 @@ export default function SellerProducts() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{product.category}</span>
+                      <span className="inline-flex rounded-full bg-indigo-50/80 px-2.5 py-1 text-xs font-semibold text-indigo-700">{product.category}</span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="font-medium text-slate-900">Rs {product.price.toLocaleString()}</div>
@@ -225,20 +241,20 @@ export default function SellerProducts() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => handleOpenModal(product)} className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700" title="Edit">
+                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleOpenModal(product)} className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100/80 hover:text-slate-700" title="Edit">
                           <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => void handleDelete(product.id)} className="rounded-lg p-2 text-rose-400 transition-colors hover:bg-rose-50 hover:text-rose-600" title="Delete">
+                        </motion.button>
+                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => void handleDelete(product.id)} className="rounded-lg p-2 text-rose-400 transition-colors hover:bg-rose-50/80 hover:text-rose-600" title="Delete">
                           <Trash2 className="h-4 w-4" />
-                        </button>
+                        </motion.button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Add/Edit Modal */}

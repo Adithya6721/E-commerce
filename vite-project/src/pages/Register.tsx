@@ -52,30 +52,39 @@ export default function Register() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
       />
-      {/* Dark overlay with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-black/40 to-purple-950/50" />
+      {/* Dark overlay — z-index 1 */}
+      <div className="absolute inset-0 bg-black/55" style={{ zIndex: 1 }} />
 
-      {/* Floating bokeh particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(5)].map((_, i) => (
+      {/* Floating bokeh particles — above overlay at z-index 2 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 2 }}>
+        {[
+          { w: 430, h: 430, left: '-5%',  top: '-10%', color: '#a855f7', dur: 9,  delay: 0 },
+          { w: 320, h: 320, left: '68%',  top: '-5%',  color: '#6366f1', dur: 12, delay: 1.5 },
+          { w: 360, h: 360, left: '70%',  top: '52%',  color: '#ec4899', dur: 10, delay: 0.8 },
+          { w: 290, h: 290, left: '10%',  top: '62%',  color: '#3b82f6', dur: 13, delay: 2 },
+          { w: 310, h: 310, left: '36%',  top: '72%',  color: '#8b5cf6', dur: 11, delay: 0.5 },
+        ].map((p, i) => (
           <div
             key={i}
-            className="absolute rounded-full"
             style={{
-              width: 100 + i * 35,
-              height: 100 + i * 35,
-              left: `${10 + i * 18}%`,
-              top: `${15 + (i % 3) * 25}%`,
-              background: `radial-gradient(circle, ${['rgba(168,85,247,0.14)', 'rgba(99,102,241,0.12)', 'rgba(236,72,153,0.1)', 'rgba(59,130,246,0.1)', 'rgba(168,85,247,0.08)'][i]} 0%, transparent 70%)`,
-              animation: `bokeh-float ${9 + i * 2}s ease-in-out infinite`,
-              animationDelay: `${i * 1.5}s`,
+              position: 'absolute',
+              width: p.w,
+              height: p.h,
+              left: p.left,
+              top: p.top,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, ${p.color}cc 0%, ${p.color}55 45%, transparent 70%)`,
+              filter: 'blur(70px)',
+              opacity: 0.55,
+              animation: `bokeh-float ${p.dur}s ease-in-out infinite`,
+              animationDelay: `${p.delay}s`,
             }}
           />
         ))}
       </div>
 
-      {/* Bottom-left branding */}
-      <div className="absolute bottom-0 left-0 z-10 p-8 md:p-12">
+      {/* Bottom-left branding — z-index 5 */}
+      <div className="absolute bottom-0 left-0 p-8 md:p-12" style={{ zIndex: 5 }}>
         <div className="flex items-center gap-3 mb-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
             <ShoppingBag className="h-5 w-5 text-white" />
@@ -94,15 +103,16 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Floating signup card */}
+      {/* Floating signup card — z-index 10 */}
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.23, 0.86, 0.39, 0.96] }}
-        className="relative z-10 w-full max-w-md mx-4"
+        style={{ zIndex: 10 }}
+        className="relative w-full max-w-md mx-4"
       >
         <div
-          className="rounded-3xl bg-white/90 backdrop-blur-2xl p-8 md:p-10 shadow-2xl shadow-black/20 border border-white/30"
+          className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-3xl p-8 md:p-10 shadow-2xl shadow-black/20 border border-white/40"
           onKeyDown={handleKeyDown}
         >
           {/* Header */}

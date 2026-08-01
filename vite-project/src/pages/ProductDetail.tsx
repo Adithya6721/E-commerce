@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Heart, Minus, Plus, ShoppingCart, Star, Send, CheckCircle } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import AnimatedSection from "../components/ui/AnimatedSection";
 import { useAuth } from "../context/AuthContext";
@@ -8,6 +9,57 @@ import { addToCart } from "../services/cartService";
 import { getProductById, getProducts, type Product } from "../services/productService";
 import { isInWishlist, toggleWishlist } from "../services/wishlistService";
 import { getReviews, submitReview, checkUserReview, type Review } from "../services/reviewService";
+import GlowFollowCard from "../components/ui/GlowFollowCard";
+
+function RelatedProductCard({ related, index }: { related: Product, index: number }) {
+  return (
+    <GlowFollowCard delay={index * 0.1}>
+      <Link
+        to={`/products/${related.id}`}
+        className="block group overflow-hidden p-4 transition-colors hover:bg-white/50"
+      >
+        <div className="relative overflow-hidden rounded-[1.5rem]">
+          <img
+            src={related.image}
+            alt={related.name}
+            className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+          <div className="absolute left-3 top-3">
+            <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700">
+              {related.category}
+            </span>
+          </div>
+        </div>
+        <div className="px-1 pb-1 pt-4">
+          <h3 className="text-lg font-semibold text-slate-900 line-clamp-1">
+            {related.name}
+          </h3>
+          <p className="mt-2 line-clamp-2 text-sm text-slate-500">
+            {related.description || "A curated product from your live catalog."}
+          </p>
+          <div className="mt-4 flex items-end justify-between text-sm">
+            <div>
+              {related.originalPrice && related.originalPrice > related.price ? (
+                <>
+                  <div className="flex gap-1 items-center">
+                    <span className="text-xs font-medium text-rose-500 line-through">Rs {related.originalPrice}</span>
+                    <span className="rounded bg-emerald-100 px-1 py-0.5 text-[9px] font-bold text-emerald-700">
+                      {Math.round(((related.originalPrice - related.price) / related.originalPrice) * 100)}%
+                    </span>
+                  </div>
+                  <span className="block font-bold text-slate-900 text-base">Rs {related.price}</span>
+                </>
+              ) : (
+                <span className="font-semibold text-slate-900 text-base">Rs {related.price}</span>
+              )}
+            </div>
+            <span className="text-slate-500 font-medium mb-0.5">Stock: {related.stock}</span>
+          </div>
+        </div>
+      </Link>
+    </GlowFollowCard>
+  );
+}
 
 export default function ProductDetail() {
   const { id = "" } = useParams();
@@ -174,9 +226,13 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#eff6ff_0%,#ffffff_38%,#f8fafc_100%)]">
+      <div className="relative min-h-screen bg-slate-50 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-400/20 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-rose-400/20 blur-[120px] pointer-events-none" />
+        <div className="absolute top-[40%] left-[20%] w-[400px] h-[400px] rounded-full bg-purple-400/20 blur-[120px] pointer-events-none" />
+        
         <Navbar />
-        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-2">
             <div className="h-[500px] animate-pulse rounded-[2rem] bg-slate-100" />
             <div className="space-y-6">
@@ -194,9 +250,13 @@ export default function ProductDetail() {
 
   if (loadError || !product) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#eff6ff_0%,#ffffff_38%,#f8fafc_100%)]">
+      <div className="relative min-h-screen bg-slate-50 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-400/20 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-rose-400/20 blur-[120px] pointer-events-none" />
+        <div className="absolute top-[40%] left-[20%] w-[400px] h-[400px] rounded-full bg-purple-400/20 blur-[120px] pointer-events-none" />
+
         <Navbar />
-        <main className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8">
+        <main className="relative z-10 mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8">
           <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-10 text-rose-700">
             {loadError || "Product not found."}
           </div>
@@ -213,10 +273,14 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#eff6ff_0%,#ffffff_38%,#f8fafc_100%)]">
+    <div className="relative min-h-screen bg-slate-50 overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-400/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-rose-400/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[40%] left-[20%] w-[400px] h-[400px] rounded-full bg-purple-400/20 blur-[120px] pointer-events-none" />
+
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-2 text-sm text-slate-500">
           <Link to="/" className="transition hover:text-indigo-600">Home</Link>
@@ -240,9 +304,13 @@ export default function ProductDetail() {
 
         {/* Product main section */}
         <section className="grid gap-10 lg:grid-cols-2">
-          {/* Image with 3D tilt */}
+          {/* Image with hover effect */}
           <AnimatedSection direction="left" duration={0.8}>
-            <div className="group overflow-hidden rounded-[2rem] border border-white bg-white shadow-sm tilt-card" style={{ transformStyle: 'preserve-3d' }}>
+            <motion.div 
+              whileHover={{ scale: 1.02, y: -5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="group relative overflow-hidden rounded-[2rem] border border-white/60 bg-white/70 backdrop-blur-[16px] shadow-[0_20px_40px_rgba(0,0,0,0.06)]" 
+            >
               <div className="relative overflow-hidden">
                 <img
                   src={product.image}
@@ -265,7 +333,7 @@ export default function ProductDetail() {
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
           </AnimatedSection>
 
           {/* Details */}
@@ -351,10 +419,12 @@ export default function ProductDetail() {
                 </button>
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => void handleAddToCart()}
                 disabled={product.stock === 0 || isAddingToCart}
-                className="inline-flex items-center gap-3 rounded-full bg-indigo-600 px-8 py-4 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
+                className="inline-flex items-center gap-3 rounded-full bg-indigo-600 px-8 py-4 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300 shadow-lg shadow-indigo-200"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {product.stock === 0
@@ -362,9 +432,11 @@ export default function ProductDetail() {
                   : isAddingToCart
                     ? "Adding..."
                     : "Add to Cart"}
-              </button>
+              </motion.button>
 
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   const added = toggleWishlist(product.id);
                   setInWishlist(added);
@@ -372,16 +444,16 @@ export default function ProductDetail() {
                 }}
                 className={`inline-flex h-14 w-14 items-center justify-center rounded-full border transition ${
                   inWishlist 
-                    ? "border-rose-200 bg-rose-50 text-rose-500" 
-                    : "border-slate-200 text-slate-500 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500"
+                    ? "border-rose-200 bg-rose-50 text-rose-500 shadow-md shadow-rose-100" 
+                    : "border-slate-200 bg-white/70 text-slate-500 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500 shadow-sm"
                 }`}
               >
                 <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
-              </button>
+              </motion.button>
             </div>
-
+            
             {/* Additional info */}
-            <div className="mt-8 space-y-3 rounded-[2rem] bg-slate-50 p-5 text-sm text-slate-600">
+            <div className="mt-8 space-y-3 rounded-[2rem] bg-white/60 backdrop-blur-[16px] border border-white/60 p-5 text-sm text-slate-600 shadow-sm">
               <div className="flex items-center justify-between">
                 <span>Stock available</span>
                 <span className="font-semibold text-slate-900">{product.stock} units</span>
@@ -411,14 +483,21 @@ export default function ProductDetail() {
             {/* Review list */}
             <div className="space-y-4">
               {reviews.length === 0 ? (
-                <div className="rounded-[2rem] border border-dashed border-slate-200 bg-white p-10 text-center">
+                <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white/50 backdrop-blur-[16px] p-10 text-center">
                   <Star className="mx-auto h-10 w-10 text-slate-200 mb-3" />
                   <p className="font-semibold text-slate-700">No reviews yet</p>
                   <p className="text-sm text-slate-500 mt-1">Be the first to share your experience!</p>
                 </div>
               ) : (
-                reviews.map((r) => (
-                  <div key={r.id} className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm">
+                reviews.map((r, i) => (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    key={r.id} 
+                    className="rounded-[2rem] border border-white/70 bg-white/70 backdrop-blur-[16px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
+                  >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <div
@@ -443,13 +522,13 @@ export default function ProductDetail() {
                     {r.comment && (
                       <p className="mt-4 text-sm leading-relaxed text-slate-600">{r.comment}</p>
                     )}
-                  </div>
+                  </motion.div>
                 ))
               )}
             </div>
 
             {/* Write a review */}
-            <div className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm h-fit">
+            <div className="rounded-[2rem] border border-white/70 bg-white/70 backdrop-blur-[16px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] h-fit">
               {!username ? (
                 <div className="text-center py-4">
                   <p className="text-sm font-semibold text-slate-700">Login to write a review</p>
@@ -532,58 +611,8 @@ export default function ProductDetail() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-              {relatedProducts.map((related) => (
-                <Link
-                  key={related.id}
-                  to={`/products/${related.id}`}
-                  className="group overflow-hidden rounded-[2rem] border border-white bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-                >
-                  <div className="relative overflow-hidden rounded-[1.5rem]">
-                    <img
-                      src={related.image}
-                      alt={related.name}
-                      className="h-52 w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute left-3 top-3">
-                      <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700">
-                        {related.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="px-1 pb-1 pt-4">
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      {related.name}
-                    </h3>
-                    <p className="mt-2 line-clamp-2 text-sm text-slate-500">
-                      {related.description ||
-                        "A curated product from your live catalog."}
-                    </p>
-                    <div className="mt-4 flex items-end justify-between text-sm">
-                      <div>
-                        {related.originalPrice && related.originalPrice > related.price ? (
-                          <>
-                            <div className="flex gap-1 items-center">
-                              <span className="text-xs font-medium text-rose-500 line-through">Rs {related.originalPrice}</span>
-                              <span className="rounded bg-emerald-100 px-1 py-0.5 text-[9px] font-bold text-emerald-700">
-                                {Math.round(((related.originalPrice - related.price) / related.originalPrice) * 100)}%
-                              </span>
-                            </div>
-                            <span className="block font-bold text-slate-900 text-base">
-                              Rs {related.price}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="font-semibold text-slate-900 text-base">
-                            Rs {related.price}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-slate-500 font-medium mb-0.5">
-                        Stock: {related.stock}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+              {relatedProducts.map((related, i) => (
+                <RelatedProductCard key={related.id} related={related} index={i} />
               ))}
             </div>
           </section>

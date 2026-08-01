@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Flame, Search, SlidersHorizontal, Sparkles, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { addToCart } from "../services/cartService";
 import { getProducts, type Product } from "../services/productService";
 import { isInWishlist, toggleWishlist, WISHLIST_UPDATED_EVENT } from "../services/wishlistService";
 import { Heart } from "lucide-react";
+import GlowFollowCard from "../components/ui/GlowFollowCard";
+import { ContainerScroll } from "../components/ui/container-scroll-animation";
+import { ScrollSequenceCanvas } from "../components/ui/scroll-sequence-canvas";
+import { CoverflowCarousel } from "../components/ui/coverflow-carousel";
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "stock-desc";
 
@@ -30,8 +35,11 @@ function ProductCard({
       : null;
 
   return (
-    <div className="product-card-wrapper" style={{ ["--beam-angle" as string]: "0deg" }}>
-      <Link to={`/products/${product.id}`} className="product-card-inner block">
+    <GlowFollowCard>
+      <Link 
+        to={`/products/${product.id}`} 
+        className="block relative overflow-hidden transition-colors hover:bg-white/50"
+      >
         {/* Image */}
         <div className="relative overflow-hidden" style={{ height: 220 }}>
           <img
@@ -127,7 +135,7 @@ function ProductCard({
           </button>
         </div>
       </Link>
-    </div>
+    </GlowFollowCard>
   );
 }
 
@@ -317,8 +325,11 @@ export default function Home() {
   const isWishlisted = (id: string) => wishlistCache[id] ?? isInWishlist(id);
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #fafafa 50%, #f8f0ff 100%)" }}>
-      <Navbar />
+    <div className="min-h-screen bg-slate-950 font-sans">
+      {/* Navbar with dark theme text override for the hero section */}
+      <div className="dark-nav-wrapper">
+        <Navbar />
+      </div>
 
       {/* Toast */}
       {message && (
@@ -342,82 +353,89 @@ export default function Home() {
         }
       `}</style>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-
-        {/* ── Hero ──────────────────────────────────────────────────────── */}
-        <section
-          className="relative overflow-hidden rounded-[2.5rem] border border-indigo-100/60"
-          style={{
-            background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 70%, #6366f1 100%)",
-          }}
-        >
-          {/* Decorative blobs */}
-          <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-indigo-300/20 blur-2xl" />
-
-          <div className="grid gap-10 px-6 py-10 sm:px-8 lg:grid-cols-[1.2fr_0.8fr] lg:px-10 lg:py-14">
-            <div className="flex flex-col justify-center text-white">
-              <div className="inline-flex max-w-fit items-center gap-2 rounded-full border border-indigo-300/40 bg-white/10 backdrop-blur px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-indigo-200">
-                <Sparkles className="h-4 w-4" />
-                Trending storefront
-              </div>
-              <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl leading-tight text-white">
-                Discover live product collections with smarter filters.
-              </h1>
-              <p className="mt-4 max-w-2xl text-base text-indigo-200 sm:text-lg">
-                Browse dynamic categories, track stock-sensitive trends, and shop a cleaner catalog experience built from your real backend data.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 backdrop-blur px-4 py-2 text-sm font-semibold text-white">
-                  <Flame className="h-4 w-4 text-rose-300" />
-                  {trendingProducts.length} trending picks
-                </div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 backdrop-blur px-4 py-2 text-sm font-semibold text-white">
-                  <Sparkles className="h-4 w-4 text-indigo-300" />
-                  {categories.length - 1} live categories
-                </div>
-              </div>
-            </div>
-
-            {/* Featured product card */}
-            <div className="relative rounded-[2rem] border border-white/20 bg-white/10 backdrop-blur-md p-5 shadow-2xl">
-              {featuredProduct ? (
-                <div className="group animate-in fade-in slide-in-from-right-4 duration-700 block">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200">Featured now</p>
-                    <div className="flex gap-1">
-                      {trendingProducts.map((_, i) => (
-                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === carouselIndex ? "w-4 bg-white" : "w-1.5 bg-white/30"}`} />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="relative mt-4 overflow-hidden rounded-[1.5rem] bg-white/10">
-                    <img src={featuredProduct.image} alt={featuredProduct.name} className="h-64 w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    {featuredProduct.averageRating != null && featuredProduct.averageRating > 0 && (
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-black/60 backdrop-blur px-2.5 py-1">
-                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                        <span className="text-[11px] font-bold text-white">{featuredProduct.averageRating.toFixed(1)}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-5 flex items-start justify-between gap-4 px-1">
-                    <div>
-                      <h2 className="text-xl font-bold text-white group-hover:text-indigo-200 transition-colors">{featuredProduct.name}</h2>
-                      <p className="mt-1 text-sm text-indigo-200 line-clamp-1">{featuredProduct.description || "Freshly curated product"}</p>
-                    </div>
-                    <span className="rounded-full bg-white/20 backdrop-blur px-4 py-2 text-sm font-bold text-white whitespace-nowrap">
-                      Rs {featuredProduct.price.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex h-full min-h-64 items-center justify-center text-sm text-indigo-200 rounded-[1.5rem] border border-white/10">
-                  Featured products will appear here.
-                </div>
-              )}
-            </div>
+        {/* ── 1. Container Scroll Hero ─────────────────────────────────────── */}
+        <div className="w-full relative">
+          {/* Cosmic Background Particles */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-[10%] left-[10%] h-[500px] w-[500px] rounded-full bg-indigo-600/10 blur-[120px]" />
+            <div className="absolute bottom-[20%] right-[10%] h-[600px] w-[600px] rounded-full bg-purple-600/10 blur-[150px]" />
+            <div className="absolute top-[40%] right-[20%] h-[400px] w-[400px] rounded-full bg-blue-600/5 blur-[100px]" />
+            {/* Stars */}
+            {Array.from({ length: 40 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: Math.random() * 3 + 1 + "px",
+                  height: Math.random() * 3 + 1 + "px",
+                  top: Math.random() * 100 + "%",
+                  left: Math.random() * 100 + "%",
+                  opacity: Math.random() * 0.4 + 0.1,
+                }}
+                animate={{
+                  y: [0, Math.random() * -50 - 20, 0],
+                  opacity: [0.1, 0.8, 0.1]
+                }}
+                transition={{
+                  duration: Math.random() * 5 + 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            ))}
           </div>
-        </section>
+
+          <ContainerScroll
+            titleComponent={
+              <div className="mb-4 relative z-10">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 backdrop-blur-md px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mb-6"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Premium Collection
+                </motion.div>
+                <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight pb-4" style={{ fontFamily: 'var(--font-heading)' }}>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-300">Engineering</span> <br/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 drop-shadow-lg">Perfected.</span>
+                </h1>
+              </div>
+            }
+          >
+            {/* Using the smartwatch image you provided (or a placeholder matching the vibe) */}
+            <img
+              src="/images/sequence/ezgif-frame-001.jpg"
+              alt="Smartwatch Exploded View"
+              className="mx-auto rounded-2xl object-cover h-full w-full object-center"
+              draggable={false}
+            />
+          </ContainerScroll>
+        </div>
+
+        {/* ── 2. Scroll Sequence Animation ─────────────────────────────────── */}
+        <ScrollSequenceCanvas 
+          frameCount={200}
+          imagePathLoader={(index) => {
+            if (index === 200) {
+              return `/images/exploded-watch-hero.png`;
+            }
+            const padded = index.toString().padStart(3, '0');
+            return `/images/sequence/ezgif-frame-${padded}.jpg`;
+          }}
+        />
+
+        {/* ── 3. 3D Coverflow Carousel ───────────────────────────────────── */}
+        <CoverflowCarousel products={trendingProducts} />
+
+        {/* ── Catalog Section Transition ─────────────────────────────────── */}
+        <div className="w-full bg-slate-950 pb-20">
+          <div className="h-24 w-full bg-gradient-to-b from-transparent to-slate-50" />
+        </div>
+
+        <main className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8 bg-slate-50 rounded-t-[3rem] shadow-2xl relative z-10 -mt-10">
+          <div className="pt-16" />
 
         {/* ── Trending Row ───────────────────────────────────────────────── */}
         <section className="mt-10">

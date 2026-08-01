@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import { getProducts, type Product } from "../../services/productService";
 import { getSellerOrders, type OrderRecord } from "../../services/orderService";
@@ -6,6 +7,11 @@ import {
   AreaChart, Area, BarChart as RechartsBarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+
+const cardHover = { y: -5, boxShadow: "0 20px 48px rgba(0,0,0,0.10)" };
+const cardTap   = { scale: 0.985 };
+const cardTrans = { duration: 0.25, ease: "easeOut" } as any;
+const fadeUp = (delay = 0) => ({ initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45, delay, ease: "easeOut" } as any });
 
 // ─── Animated Counter ─────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 900) {
@@ -82,13 +88,20 @@ function StatCard({ icon, rawValue, label, sub, color: _color, bg }: {
 }) {
   const counted = useCountUp(rawValue);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", border: "1px solid rgba(226,232,240,0.6)", borderRadius: 16, padding: "18px 22px", flex: 1, transition: "all .3s", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
-      <div style={{ width: 48, height: 48, borderRadius: 14, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{icon}</div>
+    <motion.div
+      whileHover={cardHover} whileTap={cardTap} transition={cardTrans}
+      style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", border: "1px solid rgba(226,232,240,0.7)", borderRadius: 20, padding: "18px 22px", flex: 1, boxShadow: "0 4px 20px rgba(0,0,0,0.04)", cursor: "default" }}
+    >
+      <motion.div
+        whileHover={{ scale: 1.18, rotate: 8 }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+        style={{ width: 48, height: 48, borderRadius: 14, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}
+      >{icon}</motion.div>
       <div>
         <div style={{ fontWeight: 700, color: "#0f172a", fontSize: 17 }}>{label.startsWith("Rs") ? `Rs ${counted.toLocaleString()}` : `${counted}${label}`}</div>
         <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{sub}</div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -206,17 +219,17 @@ export default function SellerOverview() {
         </div>
 
         {/* KPI Cards */}
-        <div style={{ display: "flex", gap: 16 }}>
+        <motion.div {...fadeUp(0.05)} style={{ display: "flex", gap: 16 }}>
           <StatCard icon="💰" rawValue={totalRevenue} label="Rs " sub="Total Revenue Generated" color="#3b82f6" bg="#eff6ff" />
           <StatCard icon="📦" rawValue={pendingItems} label=" pending items" sub="Awaiting processing" color="#f59e0b" bg="#fffbeb" />
           <StatCard icon="⚠️" rawValue={outOfStock} label=" out of stock" sub="Products need restocking" color="#ef4444" bg="#fef2f2" />
-        </div>
+        </motion.div>
 
         {/* Revenue Chart + Orders Bar */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
 
           {/* Revenue Chart */}
-          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+          <motion.div {...fadeUp(0.12)} whileHover={cardHover} transition={cardTrans} style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", borderRadius: 20, border: "1px solid rgba(226,232,240,0.7)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 16 }}>Total Revenue Overview</div>
@@ -256,10 +269,10 @@ export default function SellerOverview() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </motion.div>
 
           {/* Total Units Sold Bar */}
-          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, display: "flex", flexDirection: "column", gap: 16, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+          <motion.div {...fadeUp(0.18)} whileHover={cardHover} transition={cardTrans} style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", borderRadius: 20, border: "1px solid rgba(226,232,240,0.7)", padding: 20, display: "flex", flexDirection: "column", gap: 16, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div>
               <div style={{ color: "#64748b", fontSize: 13, fontWeight: 500 }}>Total Units Sold</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
@@ -286,14 +299,14 @@ export default function SellerOverview() {
                 <span style={{ fontSize: 12, fontWeight: 700 }}>{Math.round(100 - fulfillPct)}%</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Inventory Health + Fulfillment */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
 
           {/* Inventory Donut */}
-          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+          <motion.div {...fadeUp(0.22)} whileHover={cardHover} transition={cardTrans} style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", borderRadius: 20, border: "1px solid rgba(226,232,240,0.7)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Inventory Health</div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 16, marginTop: 4 }}>Current stock distribution</div>
             <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
@@ -314,10 +327,10 @@ export default function SellerOverview() {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Fulfillment Gauge */}
-          <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+          <motion.div {...fadeUp(0.27)} whileHover={cardHover} transition={cardTrans} style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", borderRadius: 20, border: "1px solid rgba(226,232,240,0.7)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Order Fulfillment</div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 16, marginTop: 4 }}>Overall platform tracking</div>
             <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
@@ -340,11 +353,11 @@ export default function SellerOverview() {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Latest Sales Table */}
-        <div style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", borderRadius: 16, border: "1px solid rgba(226,232,240,0.6)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
+        <motion.div {...fadeUp(0.32)} whileHover={{ boxShadow: "0 16px 40px rgba(0,0,0,0.08)" }} transition={cardTrans} style={{ background: "rgba(255,255,255,0.90)", backdropFilter: "blur(20px)", borderRadius: 20, border: "1px solid rgba(226,232,240,0.7)", padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <div>
               <div style={{ fontWeight: 700, fontSize: 16 }}>Latest Item Sales</div>
@@ -367,7 +380,14 @@ export default function SellerOverview() {
               </thead>
               <tbody>
                 {recentSales.slice(-5).reverse().map((r, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                  <motion.tr
+                    key={i}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.35 + i * 0.06 } as any}
+                    whileHover={{ backgroundColor: "#f8faff" }}
+                    style={{ borderBottom: "1px solid #f1f5f9" }}
+                  >
                     <td style={{ padding: "14px 12px", fontSize: 13, color: "#0f172a", maxWidth: 180 }}>
                       <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>{r.product}</div>
                     </td>
@@ -398,7 +418,7 @@ export default function SellerOverview() {
                       </span>
                     </td>
                     <td style={{ padding: "14px 12px", fontSize: 12, color: "#64748b", whiteSpace: "nowrap" }}>{r.time}</td>
-                  </tr>
+                  </motion.tr>
                 ))}
                 {recentSales.length === 0 && (
                   <tr>
@@ -410,7 +430,7 @@ export default function SellerOverview() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

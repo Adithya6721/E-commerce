@@ -208,10 +208,14 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #eef2ff 0%, #ffffff 42%, #f8fafc 100%)' }}>
+    <div className="relative min-h-screen bg-slate-50 overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-400/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-rose-400/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[40%] left-[30%] w-[400px] h-[400px] rounded-full bg-blue-400/20 blur-[120px] pointer-events-none" />
+
       <Navbar />
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.28em] text-indigo-500">Checkout</p>
@@ -245,7 +249,12 @@ export default function Checkout() {
         ) : (
           <section className="mt-8 grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-6">
-              <div className="rounded-[2rem] border border-white bg-white p-6 shadow-sm">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="rounded-[2rem] border border-white/70 bg-white/70 backdrop-blur-[16px] p-6 shadow-sm"
+              >
                 <h2 className="text-xl font-semibold text-slate-900">Delivery details</h2>
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <Field label="Full Name" value={form.fullName} onChange={(value) => updateField("fullName", value)} />
@@ -260,9 +269,14 @@ export default function Checkout() {
                     onChange={(value) => updateField("address", value)}
                   />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="rounded-[2rem] border border-white bg-white p-6 shadow-sm">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="rounded-[2rem] border border-white/70 bg-white/70 backdrop-blur-[16px] p-6 shadow-sm"
+              >
                 <h2 className="text-xl font-semibold text-slate-900">Payment method</h2>
                 <div className="mt-5 flex flex-wrap gap-3">
                   {[
@@ -304,10 +318,15 @@ export default function Checkout() {
                     Payment will be collected at the time of delivery. Order status will begin as processing.
                   </div>
                 )}
-              </div>
+              </motion.div>
             </div>
 
-            <aside className="h-fit rounded-[2rem] border border-white/60 bg-white/85 backdrop-blur-xl p-6 shadow-lg shadow-indigo-100/20">
+            <motion.aside 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="h-fit rounded-[2rem] border border-white/60 bg-white/85 backdrop-blur-xl p-6 shadow-lg shadow-indigo-100/20"
+            >
               <h2 className="text-xl font-semibold text-slate-900">Order summary</h2>
               <div className="mt-5 space-y-4">
                 {cart.items.map((item) => {
@@ -357,7 +376,7 @@ export default function Checkout() {
               >
                 {isSubmitting ? "Placing Order..." : "Confirm Payment & Place Order"}
               </motion.button>
-            </aside>
+            </motion.aside>
           </section>
         )}
       </main>
