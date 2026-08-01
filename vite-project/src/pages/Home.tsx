@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flame, Search, SlidersHorizontal, Sparkles, Star } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { addToCart } from "../services/cartService";
@@ -276,8 +276,6 @@ export default function Home() {
       .slice(0, 4),
     [products]
   );
-
-  const featuredProduct = trendingProducts[carouselIndex % Math.max(1, trendingProducts.length)];
 
   useEffect(() => {
     if (trendingProducts.length <= 1) return;

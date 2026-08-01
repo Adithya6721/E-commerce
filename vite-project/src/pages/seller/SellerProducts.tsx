@@ -151,7 +151,7 @@ export default function SellerProducts() {
             { label: "In Stock", value: inStock, color: "text-emerald-700", bg: "bg-emerald-50/50" },
             { label: "Low Stock (≤5)", value: lowStock, color: "text-amber-700", bg: "bg-amber-50/50" },
             { label: "Out of Stock", value: oos, color: "text-rose-700", bg: "bg-rose-50/50" },
-          ].map((s, i) => (
+          ].map((s) => (
             <motion.div
               key={s.label}
               whileHover={{ y: -4, boxShadow: "0 10px 25px rgba(0,0,0,0.08)" }}
